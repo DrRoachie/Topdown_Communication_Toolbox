@@ -6,9 +6,9 @@
 
 %% Define data
 
-Frequency_Band  = 'beta';               % 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
+Frequency_Band  = 'theta';               % 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
 Statistic       = 'Granger';            % 'Granger' or 'Coherence'
-animals         = {'MrM'};        % 'MrCassius' and/or 'MrM'
+animals         = {'MrM'};             % 'MrCassius' and/or 'MrM'
 
 rootdir = 'D:\03_Cohen_Lab\01_Top_Down_Coherence_Project\00_DATA\zz_MetaData\2024_07_01_Analysis';
 sessions = dir(fullfile(rootdir, '19*'));
@@ -117,176 +117,229 @@ for i = 1:length(sessions)
     end
 end
 
-%% plot grid (coherence)
+%% generate grid and diplot for coherence values 
 
-figure;
+if strcmp(Statistic, 'Coherence')
 
-% configure grid
-s = [20 20]; % [y x]
-xrange = [3 22]; % imagesc only needs the endpoints
-yrange = [3 22];
-dx = diff(xrange)/(s(2)-1);
-dy = diff(yrange)/(s(1)-1);
-xg = linspace(xrange(1)-dx/2,xrange(2)+dx/2,s(2)+1);
-yg = linspace(yrange(1)-dy/2,yrange(2)+dy/2,s(1)+1);
+        figure;
+        
+        % configure grid
+        s = [20 20]; % [y x]
+        xrange = [3 22]; % imagesc only needs the endpoints
+        yrange = [3 22];
+        dx = diff(xrange)/(s(2)-1);
+        dy = diff(yrange)/(s(1)-1);
+        xg = linspace(xrange(1)-dx/2,xrange(2)+dx/2,s(2)+1);
+        yg = linspace(yrange(1)-dy/2,yrange(2)+dy/2,s(1)+1);
+        
+        % plot heatmap
+        imagesc(xrange,yrange,ChanPair_Array_Coh); hold on
+        colorbar
+        
+        % adjust coloring
+        hm = mesh(xg,yg,zeros(s+1));
+        hm.FaceColor = 'none';
+        hm.EdgeColor = 'k';
+        
+        title(['Coherence pvalues in ' Frequency_Band]);
+        xlabel('AC');
+        ylabel('PFC');
+       
+        % plot digraph (coherence)
+        
+        % PFC to AC
+        
+        % create adjacency matrix (directional array representing edges/arrows in the resulting digraph)
+        adj_matrix = zeros(40);  
+        adj_matrix(1:20, 21:40) = ChanPair_Array_Coh;    % fill adjacency matrix at proper indices (1:20 are PFC channels; 21:40 are AC channels)
+        adj_matrix = adj_matrix + eye(40);   % add self-loops to make sure all nodes appear if they have no edges/arrows
+        
+        % find the source nodes, target nodes, and weights ('find' is a Matlab function)
+        [s, t, weights] = find(adj_matrix);
+        
+        % create digraph
+        G = digraph(s, t, weights, 'omitselfloops');    % 'omitselfloops' to have self-looping edges not appear
+        
+        % plot digraph
+        figure;
+        labels = [arrayfun(@(x) sprintf('PFC %d', x), 3:22, 'UniformOutput', false), ...    % labels nodes PFC 3, PFC 4,..., PFC 22
+                  arrayfun(@(x) sprintf('AC %d', x), 3:22, 'UniformOutput', false)];        % labels nodes AC 3, AC 4,..., AC 22
+        
+        h = plot(G, 'NodeLabel', labels, 'Layout', 'layered');
+        
+        % adjust edge thickness/color based on weights
+        h.LineWidth = G.Edges.Weight; % use edge weights as line width
+        for e = 1:height(G.Edges)
+            if G.Edges.Weight(e) > 1
+                highlight(h, 'Edges', e, 'EdgeColor', 'r');     % 'highlight' function changes edge color
+            end
+        end
+        
+        % color nodes and edges
+        h.NodeColor = 'k'; % set node color to black
+        h.MarkerSize = 7; % set node size
+        
+        % set node positions
+        x_senders = ones(1, 20) * 1; % x = 1 for senders
+        y_senders = linspace(20, 1, 20); % evenly spaced y positions for senders
+        x_receivers = ones(1, 20) * 2; % x = 2 for receivers
+        y_receivers = linspace(20, 1, 20); % evenly spaced y positions for receivers
+        x = [x_senders, x_receivers];
+        y = [y_senders, y_receivers];
+        h.XData = x;
+        h.YData = y;
+        
+        title(['Coherence betweeen PFC and AC ' Frequency_Band, ' ', Animal] );
 
-% plot heatmap
-imagesc(xrange,yrange,ChanPair_Array_Coh); hold on
-colorbar
-
-% adjust coloring
-hm = mesh(xg,yg,zeros(s+1));
-hm.FaceColor = 'none';
-hm.EdgeColor = 'k';
-
-title(['Coherence pvalues in ' Frequency_Band]);
-xlabel('AC');
-ylabel('PFC');
-
-%% plot grid (granger)
-
-% PFC to AC
-
-figure;
-
-% configure grid
-s = [20 20]; % [y x]
-xrange = [3 22]; % imagesc only needs the endpoints
-yrange = [3 22];
-dx = diff(xrange)/(s(2)-1);
-dy = diff(yrange)/(s(1)-1);
-xg = linspace(xrange(1)-dx/2,xrange(2)+dx/2,s(2)+1);
-yg = linspace(yrange(1)-dy/2,yrange(2)+dy/2,s(1)+1);
-
-% plot heatmap
-imagesc(xrange,yrange,ChanPair_Array_PFC_AC); hold on
-colorbar
-
-% adjust coloring
-hm = mesh(xg,yg,zeros(s+1));
-hm.FaceColor = 'none';
-hm.EdgeColor = 'k';
-
-title(['PFC to AC Granger pvalues in ' Frequency_Band]);
-xlabel('AC');
-ylabel('PFC');
-
-% AC to PFC
-
-figure;
-
-% configure grid
-s = [20 20]; % [y x]
-xrange = [3 22]; % imagesc only needs the endpoints
-yrange = [3 22];
-a = rand(s);
-dx = diff(xrange)/(s(2)-1);
-dy = diff(yrange)/(s(1)-1);
-xg = linspace(xrange(1)-dx/2,xrange(2)+dx/2,s(2)+1);
-yg = linspace(yrange(1)-dy/2,yrange(2)+dy/2,s(1)+1);
-
-% plot heatmap
-hi = imagesc(xrange,yrange,ChanPair_Array_AC_PFC); hold on
-colorbar
-
-% adjust coloring
-hm = mesh(xg,yg,zeros(s+1));
-hm.FaceColor = 'none';
-hm.EdgeColor = 'k';
-
-title(['AC to PFC Granger pvalues in ' Frequency_Band]);
-xlabel('PFC');
-ylabel('AC');
-
-%% plot digraph (granger)
-
-% PFC to AC
-
-% create adjacency matrix (directional array representing edges/arrows in the resulting digraph)
-adj_matrix = zeros(40);  
-adj_matrix(1:20, 21:40) = ChanPair_Array_PFC_AC;    % fill adjacency matrix at proper indices (1:20 are PFC channels; 21:40 are AC channels)
-adj_matrix = adj_matrix + eye(40);   % add self-loops to make sure all nodes appear if they have no edges/arrows
-
-% find the source nodes, target nodes, and weights ('find' is a Matlab function)
-[s, t, weights] = find(adj_matrix);
-
-% create digraph
-G = digraph(s, t, weights, 'omitselfloops');    % 'omitselfloops' to have self-looping edges not appear
-
-% plot digraph
-figure;
-labels = [arrayfun(@(x) sprintf('PFC %d', x), 3:22, 'UniformOutput', false), ...    % labels nodes PFC 3, PFC 4,..., PFC 22
-          arrayfun(@(x) sprintf('AC %d', x), 3:22, 'UniformOutput', false)];        % labels nodes AC 3, AC 4,..., AC 22
-
-h = plot(G, 'NodeLabel', labels, 'Layout', 'layered');
-
-% adjust edge thickness/color based on weights
-h.LineWidth = G.Edges.Weight; % use edge weights as line width
-for e = 1:height(G.Edges)
-    if G.Edges.Weight(e) > 1
-        highlight(h, 'Edges', e, 'EdgeColor', 'r');     % 'highlight' function changes edge color
-    end
 end
 
-% color nodes and edges
-h.NodeColor = 'k'; % set node color to black
-h.MarkerSize = 7; % set node size
-
-% set node positions
-x_senders = ones(1, 20) * 1; % x = 1 for senders
-y_senders = linspace(20, 1, 20); % evenly spaced y positions for senders
-x_receivers = ones(1, 20) * 2; % x = 2 for receivers
-y_receivers = linspace(20, 1, 20); % evenly spaced y positions for receivers
-x = [x_senders, x_receivers];
-y = [y_senders, y_receivers];
-h.XData = x;
-h.YData = y;
-
-title(['PFC to AC Granger in ' Frequency_Band]);
+%% generate grid and diplot for granger values in both directions  
 
 
-% AC to PFC
+if strcmp(Statistic, 'Granger')
 
-adj_matrix = zeros(40);  % create adjacency matrix
-adj_matrix(1:20, 21:40) = ChanPair_Array_AC_PFC;
-adj_matrix = adj_matrix + eye(40);   % add self-loops to make sure all nodes appear even without an edge
+        % PFC to AC
+        
+        figure;
+        
+        % configure grid
+        s = [20 20]; % [y x]
+        xrange = [3 22]; % imagesc only needs the endpoints
+        yrange = [3 22];
+        dx = diff(xrange)/(s(2)-1);
+        dy = diff(yrange)/(s(1)-1);
+        xg = linspace(xrange(1)-dx/2,xrange(2)+dx/2,s(2)+1);
+        yg = linspace(yrange(1)-dy/2,yrange(2)+dy/2,s(1)+1);
+        
+        % plot heatmap
+        imagesc(xrange,yrange,ChanPair_Array_PFC_AC); hold on
+        colorbar
+        
+        % adjust coloring
+        hm = mesh(xg,yg,zeros(s+1));
+        hm.FaceColor = 'none';
+        hm.EdgeColor = 'k';
+        
+        title(['PFC to AC Granger pvalues in ' Frequency_Band]);
+        xlabel('AC');
+        ylabel('PFC');
+        
+        % AC to PFC
+        
+        figure;
+        
+        % configure grid
+        s = [20 20]; % [y x]
+        xrange = [3 22]; % imagesc only needs the endpoints
+        yrange = [3 22];
+        a = rand(s);
+        dx = diff(xrange)/(s(2)-1);
+        dy = diff(yrange)/(s(1)-1);
+        xg = linspace(xrange(1)-dx/2,xrange(2)+dx/2,s(2)+1);
+        yg = linspace(yrange(1)-dy/2,yrange(2)+dy/2,s(1)+1);
+        
+        % plot heatmap
+        hi = imagesc(xrange,yrange,ChanPair_Array_AC_PFC); hold on
+        colorbar
+        
+        % adjust coloring
+        hm = mesh(xg,yg,zeros(s+1));
+        hm.FaceColor = 'none';
+        hm.EdgeColor = 'k';
+        
+        title(['AC to PFC Granger pvalues in ' Frequency_Band]);
+        xlabel('PFC');
+        ylabel('AC');
+        
+        % plot digraph (granger)
+        
+        % PFC to AC
+        
+        % create adjacency matrix (directional array representing edges/arrows in the resulting digraph)
+        adj_matrix = zeros(40);  
+        adj_matrix(1:20, 21:40) = ChanPair_Array_PFC_AC;    % fill adjacency matrix at proper indices (1:20 are PFC channels; 21:40 are AC channels)
+        adj_matrix = adj_matrix + eye(40);   % add self-loops to make sure all nodes appear if they have no edges/arrows
+        
+        % find the source nodes, target nodes, and weights ('find' is a Matlab function)
+        [s, t, weights] = find(adj_matrix);
+        
+        % create digraph
+        G = digraph(s, t, weights, 'omitselfloops');    % 'omitselfloops' to have self-looping edges not appear
+        
+        % plot digraph
+        figure;
+        labels = [arrayfun(@(x) sprintf('PFC %d', x), 3:22, 'UniformOutput', false), ...    % labels nodes PFC 3, PFC 4,..., PFC 22
+                  arrayfun(@(x) sprintf('AC %d', x), 3:22, 'UniformOutput', false)];        % labels nodes AC 3, AC 4,..., AC 22
+        
+        h = plot(G, 'NodeLabel', labels, 'Layout', 'layered');
+        
+        % adjust edge thickness/color based on weights
+        h.LineWidth = G.Edges.Weight; % use edge weights as line width
+        for e = 1:height(G.Edges)
+            if G.Edges.Weight(e) > 1
+                highlight(h, 'Edges', e, 'EdgeColor', 'r');     % 'highlight' function changes edge color
+            end
+        end
+        
+        % color nodes and edges
+        h.NodeColor = 'k'; % set node color to black
+        h.MarkerSize = 7; % set node size
+        
+        % set node positions
+        x_senders = ones(1, 20) * 1; % x = 1 for senders
+        y_senders = linspace(20, 1, 20); % evenly spaced y positions for senders
+        x_receivers = ones(1, 20) * 2; % x = 2 for receivers
+        y_receivers = linspace(20, 1, 20); % evenly spaced y positions for receivers
+        x = [x_senders, x_receivers];
+        y = [y_senders, y_receivers];
+        h.XData = x;
+        h.YData = y;
+        
+        title(['PFC to AC Granger in ' Frequency_Band]);
+        
+        
+        % AC to PFC
+        
+        adj_matrix = zeros(40);  % create adjacency matrix
+        adj_matrix(1:20, 21:40) = ChanPair_Array_AC_PFC;
+        adj_matrix = adj_matrix + eye(40);   % add self-loops to make sure all nodes appear even without an edge
+        
+        % Find the source nodes, target nodes, and weights
+        [s, t, weights] = find(adj_matrix);
+        
+        % Create the digraph
+        G = digraph(s, t, weights, 'omitselfloops');
+        
+        % Plot the digraph
+        figure;
+        labels = [arrayfun(@(x) sprintf('AC %d', x), 3:22, 'UniformOutput', false), ...
+                  arrayfun(@(x) sprintf('PFC %d', x), 3:22, 'UniformOutput', false)];
+        
+        h = plot(G, 'NodeLabel', labels, 'Layout', 'layered');
+        
+        % Adjust edge thickness/color based on weights
+        h.LineWidth = G.Edges.Weight; % Use edge weights as line width
+        for e = 1:height(G.Edges)
+            if G.Edges.Weight(e) > 1
+                highlight(h, 'Edges', e, 'EdgeColor', 'r');
+            end
+        end
+        
+        % Color nodes and edges
+        h.NodeColor = 'k'; % Set node color to black
+        % h.EdgeColor = 'b';
+        h.MarkerSize = 7; % Set node size
+        
+        % Set the node positions
+        x_senders = ones(1, 20) * 1; % x = 1 for senders
+        y_senders = linspace(20, 1, 20); % evenly spaced y positions for senders
+        x_receivers = ones(1, 20) * 2; % x = 2 for receivers
+        y_receivers = linspace(20, 1, 20); % evenly spaced y positions for receivers
+        x = [x_senders, x_receivers];
+        y = [y_senders, y_receivers];
+        h.XData = x;
+        h.YData = y;
+        
+        title(['AC to PFC Granger in ' Frequency_Band]);
 
-% Find the source nodes, target nodes, and weights
-[s, t, weights] = find(adj_matrix);
-
-% Create the digraph
-G = digraph(s, t, weights, 'omitselfloops');
-
-% Plot the digraph
-figure;
-labels = [arrayfun(@(x) sprintf('AC %d', x), 3:22, 'UniformOutput', false), ...
-          arrayfun(@(x) sprintf('PFC %d', x), 3:22, 'UniformOutput', false)];
-
-h = plot(G, 'NodeLabel', labels, 'Layout', 'layered');
-
-% Adjust edge thickness/color based on weights
-h.LineWidth = G.Edges.Weight; % Use edge weights as line width
-for e = 1:height(G.Edges)
-    if G.Edges.Weight(e) > 1
-        highlight(h, 'Edges', e, 'EdgeColor', 'r');
-    end
 end
-
-% Color nodes and edges
-h.NodeColor = 'k'; % Set node color to black
-% h.EdgeColor = 'b';
-h.MarkerSize = 7; % Set node size
-
-% Set the node positions
-x_senders = ones(1, 20) * 1; % x = 1 for senders
-y_senders = linspace(20, 1, 20); % evenly spaced y positions for senders
-x_receivers = ones(1, 20) * 2; % x = 2 for receivers
-y_receivers = linspace(20, 1, 20); % evenly spaced y positions for receivers
-x = [x_senders, x_receivers];
-y = [y_senders, y_receivers];
-h.XData = x;
-h.YData = y;
-
-title(['AC to PFC Granger in ' Frequency_Band]);
-
-

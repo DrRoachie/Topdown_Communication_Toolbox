@@ -8,9 +8,9 @@
 
 %% Define input array to be evaluated 
 
-Animal          = 'both';                   % 'both' or 'MrCassius' or 'MrM' (for file name ONLY, should match input to Summary_PValue_Spatial_Figure.m) 
-Frequency_Band  = 'beta';                   % for file name ONLY, should match input to Summary_PValue_Spatial_Figure.m
-Direction       = 'PFC_AC';
+Animal          = 'MrM';                   % 'both' or 'MrCassius' or 'MrM' (for file name ONLY, should match input to Summary_PValue_Spatial_Figure.m) 
+Frequency_Band  = 'theta';                 % for file name ONLY, should match input to Summary_PValue_Spatial_Figure.m
+Direction       = 'AC_PFC';                % 'PFC_AC' or 'AC_PFC'
 
 if strcmp(Direction, 'AC_PFC')
     Input_Array = ChanPair_Array_AC_PFC;    % 'ChanPair_Array_PFC_AC' or 'ChanPair_Array_AC_PFC'
@@ -28,42 +28,39 @@ end
 figure; heatmap(Blur_Array);
 
 %% Find highest 3 clusters of p-values and store in array
-
 Blur_Array_Copy = Blur_Array; % make copy of blurred array (to be able to remove maximum and find next highest peak)
 Results = []; % array storing results of peak cluster detection (first/second/third max rank, sender channel, receiver channel, max id logical, # of p-values)
 for k = 1:3
     % find the next max value
     max_value = max(Blur_Array_Copy, [], 'all');
     [max_send_chan, max_rec_chan] = find(Blur_Array_Copy == max_value);
-
+    max_send_chan = max_send_chan(1); % if there are multiple maxima, arbitrarily take the first
+    max_rec_chan = max_rec_chan(1);
     % find the +/-2 range around the max value
     for ii = 0:4
         send_chan = (max_send_chan - 2) + ii; % start from (max_send_chan - 2) and increase to (max_send_chan + 2)
-        if send_chan < 1 || send_chan > 17 % make sure channel index is within array bounds
+        if (send_chan < 1) || (send_chan > 17) % make sure channel index is within array bounds
             continue;
         end
         for jj = 0:4
             rec_chan = (max_rec_chan - 2) + jj; % for each row of senders, start from (max_rec_chan - 2) and increase to (max_rec_chan + 2)
-            if rec_chan < 1 || rec_chan > 17 % make sure channel index is within array bounds
+            if (rec_chan < 1) || (rec_chan > 17) % make sure channel index is within array bounds
                 continue;
             end
             max_chan_logical = (send_chan == max_send_chan) & (rec_chan == max_rec_chan); % logical value for identifying which pair is the max value
-
             % update Results array
             New_Row = [k, send_chan + 3, rec_chan + 3, max_chan_logical, Input_Array(send_chan, rec_chan)]; % channel numbers go from 3:22
             Results = [Results; New_Row];
-
             % remove the channel pair once it's been added to Results
             Blur_Array_Copy(send_chan, rec_chan) = 0;
         end
     end
-
     
 end
-
 %% Remove overlapping channel pairs
 
 C = unique(Results(:,2:3), 'rows'); % get all unique channel pairs
+
 for i = 1:length(C)
     pair_indices = find((C(i,1) == Results(:,2)) & C(i,2) == Results(:,3)); % get indices of every occurrence of the channel pair
     if length(pair_indices) > 1 % if there are more than one occurrence of the channel pair
@@ -75,6 +72,6 @@ end
 
 max_results = Results;
 
-savedir = 'F:\2024_07_24_Analysis\XCorr_Histogram_Data';
+savedir = 'D:\03_Cohen_Lab\01_Top_Down_Coherence_Project\00_DATA\zz_MetaData\2024_07_01_Analysis\XCorr_Histogram_Data';
 fName   = sprintf('pvalue_max_3_channels_%s_%s_%s.mat', Animal, Frequency_Band, Direction);
 save(fullfile(savedir,fName), 'max_results');
