@@ -2,7 +2,7 @@ Communication_Toolbox
 
 Last Updated: 07/29/24
 
-This is the code that CR and SF developed to calculate communication between PFC and AC as a function of prior information (i.e, often designated as OnlyPrior and OnlyPretone trials). More specifically, it takes oscillation (LFP) data and  Each directory is amended with descriptions of the code held within. This document serves as a high level description of the code to put everything into context. 
+This is the code that CR and SF developed to calculate communication between PFC and AC as a function of prior information (i.e, often designated as OnlyPrior and OnlyPretone trials). More specifically, it takes oscillation (LFP) data held in the 00_DATA folder and calculates coherence, granger, and xcorr between significantly modulated channel pairs. Each directory (both code and data) should be amended with descriptions of what is held within. This document serves as a high level description of the code to put everything into context. 
 
 Dependencies
 MATLAB 2020 or later

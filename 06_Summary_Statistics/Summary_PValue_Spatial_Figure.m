@@ -6,8 +6,8 @@
 
 %% Define data
 
-Frequency_Band  = 'theta';               % 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
-Statistic       = 'Granger';            % 'Granger' or 'Coherence'
+Frequency_Band  = 'alpha';               % 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
+Statistic       = 'Coherence';            % 'Granger' or 'Coherence'
 animals         = {'MrM'};             % 'MrCassius' and/or 'MrM'
 
 rootdir = 'D:\03_Cohen_Lab\01_Top_Down_Coherence_Project\00_DATA\zz_MetaData\2024_07_01_Analysis';
