@@ -19,7 +19,7 @@ Loops through a directory of sessions and generates complete summary figures for
 
 Summary_PValue_Spatial_Figure.m
 
-For a given frequency band, list of animals, and statistic (coherence or granger), this script counts the number of passing montecarlo p-values for that statistic for each channel pair into an array. A passing p-value means that for that channel pair and session, the statistic varied as a function of condition. The array can be plotted as a colored heatmap grid or as a network diagram (refer to chunk titles). The heatmap can be just as well plotted with the Matlab 'heatmap' function on the corresponding arrays, although color will be lost. This script is best run chunk-by-chunk.
+For a given frequency band, list of animals, and statistic (coherence or granger), this script counts the number of passing montecarlo p-values for that statistic for each channel pair into an array. A passing p-value means that for that channel pair and session, the statistic varied as a function of condition. The array can be plotted as a colored heatmap grid or as a network diagram (refer to chunk titles). The heatmap can be just as well plotted with the Matlab 'heatmap' function on the corresponding arrays, although color will be lost. This script is best run chunk-by-chunk. If Coherence is selected it generates one key variable ChanPair_Array_Coh, if Granger is selected it generates two key varibles that specify directionality 'ChanPair_Array_PFC_AC' and 'ChanPair_Array_AC_PFC'
 
 Summary_PValue_Blur_Cluster_Detection.m
 
@@ -27,4 +27,4 @@ To identify which PFC and AC channels showed the most activity, an array from Su
 
 [To-Do] Summary_Figure_v3 needs some developing. specifically, it needs to be tested for several channel pairs within a directory and also get a saving or output chunk written into it.
 [To-Do][high priority] Summary_PValue_Blur_Cluster_Detection.m does not output and we have not fed those values into the xcorr pipeline yet. 
-[To-Do?} Could maybe add a save chunk in Summary_PValue_Spatial_Figure.m so that it does not always need to be run before Summary_PValue_Blur_Cluster_Detection.m. Cluster detection script only needs variables ChanPair_Array_PFC_AC and ChanPair_Array_AC_PFC (love, Sophia)
+[To-Do?} Could maybe add a save chunk in Summary_PValue_Spatial_Figure.m so that it does not always need to be run before Summary_PValue_Blur_Cluster_Detection.m. Cluster detection script only needs variables ChanPair_Array_PFC_AC and ChanPair_Array_AC_PFC 

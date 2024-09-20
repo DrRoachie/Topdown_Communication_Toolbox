@@ -6,11 +6,11 @@
 rootdir = 'D:\03_Cohen_Lab\01_Top_Down_Coherence_Project\00_DATA\05_Epoc_Cut_2';
 rootchandir = 'D:\03_Cohen_Lab\01_Top_Down_Coherence_Project\00_DATA\05_Significant_Channels';
 
-animals         = {'MrCassius'};
+animals         = {'MrCassius', 'MrM'};
 Epoch           = 'preCueOnset';
-conditions      = {'OnlyPrior'; 'OnlyPretone'};
+conditions      = {'OnlyPretone'};
 Behavior        = 'Correct';
-frequency_bands = {'theta'};
+frequency_bands = {'theta'; 'alpha'; 'beta'};
 
 
 for c = 1:length(conditions)

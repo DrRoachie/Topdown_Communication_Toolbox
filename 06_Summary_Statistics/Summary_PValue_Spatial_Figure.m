@@ -6,11 +6,12 @@
 
 %% Define data
 
-Frequency_Band  = 'alpha';               % 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
-Statistic       = 'Coherence';            % 'Granger' or 'Coherence'
-animals         = {'MrM'};             % 'MrCassius' and/or 'MrM'
+Frequency_Band  = 'theta';               % 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
+Statistic       = 'Coherence';             % 'Granger' or 'Coherence'
+animals         = {'MrM'};         % 'MrCassius' and/or 'MrM'
 
-rootdir = 'D:\03_Cohen_Lab\01_Top_Down_Coherence_Project\00_DATA\zz_MetaData\2024_07_01_Analysis';
+%rootdir = 'D:\03_Cohen_Lab\01_Top_Down_Coherence_Project\00_DATA\zz_MetaData\2024_07_01_Analysis';
+rootdir  = 'D:\03_Cohen_Lab\01_Top_Down_Coherence_Project\00_DATA\zz_MetaData\2024_07_24_Analysis';
 sessions = dir(fullfile(rootdir, '19*'));
 
 if strcmp(Statistic, 'Coherence')
@@ -27,7 +28,7 @@ for i = 1:length(sessions)
     for j = 1:length(animals)
 
         Animal = animals{j};
-        Epoch  = 'testToneOnset';
+        Epoch  = 'testToneOnset';   % Epoch  = 'testToneOnset'; 'preCueOnset'
 
         if exist(fullfile(rootdir, RecDate, Animal), 'dir') % if the session has the animal (one animal per session)
             if strcmp(Statistic, 'Coherence')
@@ -141,7 +142,7 @@ if strcmp(Statistic, 'Coherence')
         hm.FaceColor = 'none';
         hm.EdgeColor = 'k';
         
-        title(['Coherence pvalues in ' Frequency_Band]);
+        title(['Coherence betweeen PFC and AC ' Frequency_Band, ' ', Animal]);
         xlabel('AC');
         ylabel('PFC');
        
@@ -220,7 +221,7 @@ if strcmp(Statistic, 'Granger')
         hm.FaceColor = 'none';
         hm.EdgeColor = 'k';
         
-        title(['PFC to AC Granger pvalues in ' Frequency_Band]);
+        title(['PFC to AC Granger pvalues in ' Frequency_Band, ' ', Animal]);
         xlabel('AC');
         ylabel('PFC');
         
@@ -295,7 +296,7 @@ if strcmp(Statistic, 'Granger')
         h.XData = x;
         h.YData = y;
         
-        title(['PFC to AC Granger in ' Frequency_Band]);
+        title(['PFC to AC Granger in ' Frequency_Band, ' ', Animal]);
         
         
         % AC to PFC
@@ -340,6 +341,6 @@ if strcmp(Statistic, 'Granger')
         h.XData = x;
         h.YData = y;
         
-        title(['AC to PFC Granger in ' Frequency_Band]);
+        title(['AC to PFC Granger in ' Frequency_Band, ' ', Animal]);
 
 end
