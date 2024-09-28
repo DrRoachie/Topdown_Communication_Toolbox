@@ -1,8 +1,8 @@
 
 %% Define data
 
-Animal  = 'MrM';       % 'both' or 'MrCassius' or 'MrM'
-freq_band_list  = {'theta'};
+Animal  = 'MrCassius';       % 'both' or 'MrCassius' or 'MrM'
+freq_band_list  = {'beta'};
 
 %% load histogram data arrays and max channel pairs
 % OnlyPrior_Time_Bins and OnlyPretone_Time_Bins saved in D:\03_Cohen_Lab\01_Top_Down_Coherence_Project\00_DATA\zz_MetaData\2024_07_01_Analysis\XCorr_Histogram_Data

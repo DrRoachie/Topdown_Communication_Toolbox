@@ -1,16 +1,15 @@
 
 % For a specified frequency band, loops through all sessions and counts the 
 % number of times the p value for coherence or granger passes (< 0.05) for 
-% all channel pairs. Heatmap is generated to visualize which pairs are 
-% passing more.
+% all channel pairs. Heatmap is generated to visualize the spatial
+% distribution of the channel pairs that significantly modulated by context 
 
 %% Define data
 
-Frequency_Band  = 'theta';               % 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
+Frequency_Band  = 'beta';               % 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
 Statistic       = 'Coherence';             % 'Granger' or 'Coherence'
-animals         = {'MrM'};         % 'MrCassius' and/or 'MrM'
+animals         = {'MrCassius'};         % 'MrCassius' and/or 'MrM'
 
-%rootdir = 'D:\03_Cohen_Lab\01_Top_Down_Coherence_Project\00_DATA\zz_MetaData\2024_07_01_Analysis';
 rootdir  = 'D:\03_Cohen_Lab\01_Top_Down_Coherence_Project\00_DATA\zz_MetaData\2024_07_24_Analysis';
 sessions = dir(fullfile(rootdir, '19*'));
 
@@ -135,6 +134,7 @@ if strcmp(Statistic, 'Coherence')
         
         % plot heatmap
         imagesc(xrange,yrange,ChanPair_Array_Coh); hold on
+        clim([0 10]);   % Set minimum color value to 0 and maximum to 10
         colorbar
         
         % adjust coloring
@@ -142,7 +142,7 @@ if strcmp(Statistic, 'Coherence')
         hm.FaceColor = 'none';
         hm.EdgeColor = 'k';
         
-        title(['Coherence betweeen PFC and AC ' Frequency_Band, ' ', Animal]);
+        title(['Distribution of Channel Pairs Significantly Modulated by Context', ':  ', Statistic, ':', Frequency_Band, ':', Animal]);
         xlabel('AC');
         ylabel('PFC');
        
@@ -166,7 +166,7 @@ if strcmp(Statistic, 'Coherence')
         labels = [arrayfun(@(x) sprintf('PFC %d', x), 3:22, 'UniformOutput', false), ...    % labels nodes PFC 3, PFC 4,..., PFC 22
                   arrayfun(@(x) sprintf('AC %d', x), 3:22, 'UniformOutput', false)];        % labels nodes AC 3, AC 4,..., AC 22
         
-        h = plot(G, 'NodeLabel', labels, 'Layout', 'layered');
+        h = plot(G, 'NodeLabel', labels, 'Layout', 'layered','ArrowSize', 0);
         
         % adjust edge thickness/color based on weights
         h.LineWidth = G.Edges.Weight; % use edge weights as line width
@@ -190,7 +190,7 @@ if strcmp(Statistic, 'Coherence')
         h.XData = x;
         h.YData = y;
         
-        title(['Coherence betweeen PFC and AC ' Frequency_Band, ' ', Animal] );
+        title(['Distribution of Channel Pairs Significantly Modulated by Context', ':  ', Statistic, '-', Frequency_Band, '-', Animal]);
 
 end
 
@@ -221,7 +221,7 @@ if strcmp(Statistic, 'Granger')
         hm.FaceColor = 'none';
         hm.EdgeColor = 'k';
         
-        title(['PFC to AC Granger pvalues in ' Frequency_Band, ' ', Animal]);
+        title(['Distribution of Channel Pairs Significantly Modulated by Context', ':  ', Statistic, '-', Frequency_Band, '-', Animal]);
         xlabel('AC');
         ylabel('PFC');
         
@@ -248,7 +248,7 @@ if strcmp(Statistic, 'Granger')
         hm.FaceColor = 'none';
         hm.EdgeColor = 'k';
         
-        title(['AC to PFC Granger pvalues in ' Frequency_Band]);
+        title(['Distribution of Channel Pairs Significantly Modulated by Context', ':  ', Statistic, '-', Frequency_Band, '-', Animal]);
         xlabel('PFC');
         ylabel('AC');
         
@@ -296,9 +296,8 @@ if strcmp(Statistic, 'Granger')
         h.XData = x;
         h.YData = y;
         
-        title(['PFC to AC Granger in ' Frequency_Band, ' ', Animal]);
-        
-        
+       title(['Distribution of Channel Pairs Significantly Modulated by Context', ':  ', Statistic, '-', Frequency_Band, '-', Animal]);
+    
         % AC to PFC
         
         adj_matrix = zeros(40);  % create adjacency matrix
@@ -341,6 +340,5 @@ if strcmp(Statistic, 'Granger')
         h.XData = x;
         h.YData = y;
         
-        title(['AC to PFC Granger in ' Frequency_Band, ' ', Animal]);
-
+        title(['Distribution of Channel Pairs Significantly Modulated by Context', ':  ', Statistic, '-', Frequency_Band, '-', Animal]);
 end

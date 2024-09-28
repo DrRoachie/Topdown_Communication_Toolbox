@@ -8,8 +8,8 @@
 
 %% Define input array to be evaluated 
 
-Animal          = 'MrM';                   % 'both' or 'MrCassius' or 'MrM' (for file name ONLY, should match input to Summary_PValue_Spatial_Figure.m) 
-Frequency_Band  = 'theta';                 % for file name ONLY, should match input to Summary_PValue_Spatial_Figure.m
+Animal          = 'MrCassius';                   % 'both' or 'MrCassius' or 'MrM' (for file name ONLY, should match input to Summary_PValue_Spatial_Figure.m) 
+Frequency_Band  = 'beta';                 % for file name ONLY, should match input to Summary_PValue_Spatial_Figure.m
 Statistic       = 'Coherence';
 savedir         = 'D:\03_Cohen_Lab\01_Top_Down_Coherence_Project\00_DATA\zz_MetaData\2024_07_24_Analysis\XCorr_Histogram_Data\COHERENCE_testTone_xcorr_histogram_data';
 
