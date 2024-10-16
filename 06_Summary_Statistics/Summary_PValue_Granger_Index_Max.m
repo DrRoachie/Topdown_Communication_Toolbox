@@ -11,19 +11,19 @@
 
 %% Define data
 
-Frequency_Band  = 'beta';               % 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
+Frequency_Band  = 'theta';               % 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
 Statistic       = 'Granger';             % 'Granger' or 'Coherence'
-Animal          = 'MrCassius';                 % 'MrCassius' and/or 'MrM'
+Animal          = 'MrM';                 % 'MrCassius' and/or 'MrM'
 Direction       = 'P2A';                 % 'P2A' or 'A2P'      
-freq_band_list  = {'beta'};
-animals         = {'MrCassius'};
+freq_band_list  = {'theta'};
+animals         = {'MrM'};
 Epoch           = 'testToneOnset';
 
 %% load histogram data arrays and max channel pairs
 % OnlyPrior_Time_Bins and OnlyPretone_Time_Bins saved in D:\03_Cohen_Lab\01_Top_Down_Coherence_Project\00_DATA\zz_MetaData\2024_07_01_Analysis\XCorr_Histogram_Data
 
-maxdir          = 'D:\03_Cohen_Lab\01_Top_Down_Coherence_Project\00_DATA\zz_MetaData\2024_07_24_Analysis\XCorr_Histogram_Data\COHERENCE_testTone_xcorr_histogram_data';
-path_to_data    = 'D:\03_Cohen_Lab\01_Top_Down_Coherence_Project\00_DATA\zz_MetaData\2024_07_24_Analysis\XCorr_Histogram_Data\COHERENCE_testTone_xcorr_histogram_data';
+maxdir          = 'D:\2024_09_27_Analysis\XCorr_Histogram_Data\COHERENCE_testTone_xcorr_histogram_data';
+path_to_data    = 'D:\2024_09_27_Analysis\XCorr_Histogram_Data\COHERENCE_testTone_xcorr_histogram_data';
 file_name       = 'xcorr_histogram_data.mat';
 load(fullfile(path_to_data, file_name));
 
@@ -32,7 +32,7 @@ clear file_name;
 
 %%
 
-rootdir = 'D:\03_Cohen_Lab\01_Top_Down_Coherence_Project\00_DATA\zz_MetaData\2024_07_24_Analysis';
+rootdir = 'D:\2024_09_27_Analysis';
 sessions = dir(fullfile(rootdir, '19*'));
 
 ChanPair_Array_PFC_AC = zeros(20,20);   % used to store passing p-value count for granger (bidirectional)
@@ -589,51 +589,54 @@ PretoneOnly_Granger_A2P_Values_AllStongPairs  = horzcat(PretoneOnly_Granger_Valu
 
 
 
-                    figure(1)
-
-                    % within condition, plot the granger values
-
-                    % scatter plot of prior Condition granger values 
-                    hold on; % Retain current plot when adding new plots
-                    % Scatter plot
-                    scatter(PriorOnly_Granger_Index_AllStongPairs, PretoneOnly_Granger_Index_AllStongPairs);
-
-                    ax = gca;
-                    ax.XAxis.Exponent = 0;  % Disable scientific notation for X-axis
-                    ax.YAxis.Exponent = 0;  % Disable scientific notation for Y-axis
-
-                    % Add labels
-                    xlabel('PriorOnly A2P Granger Index');
-                    ylabel('PriorOnly P2A Granger Index');
-                    % Create the title string using sprintf
-                    titleString = sprintf('%s - %s: Directionality of A.S.P. Granger Index PriorOnly', Animal, Frequency_Band);
-                    % Set the title of the figure
-                    title(titleString);
-
-                    % % Set axes to be equal
-                    % axis equal;
-
-                     % Set the origin to (0,0)
-                    % Determine the range for the axes
-                    xLimits = [min(PriorOnly_Granger_Index_AllStongPairs), max(PriorOnly_Granger_Index_AllStongPairs)];
-                    yLimits = [min(PretoneOnly_Granger_Index_AllStongPairs), max(PretoneOnly_Granger_Index_AllStongPairs)];
-
-                    % Apply the determined limits
-                    xlim(xLimits);
-                    ylim(yLimits);
-
-                    plot([min([xLimits(1), yLimits(1)]), max([xLimits(2), yLimits(2)])], [min([xLimits(1), yLimits(1)]), max([xLimits(2), yLimits(2)])], 'r--'); % Red dashed line with slope 1
-
-                    % Perform a paired t-test
-                    [h, p] = ttest(PriorOnly_Granger_Index_AllStongPairs, PretoneOnly_Granger_Index_AllStongPairs);
-
-                    % Display p-value on the plot
-                    text(max(xlim)*0.05, max(ylim)*0.95, sprintf('p-value = %.4f', p), 'FontSize', 12, 'Color', 'b');
-                    hold off
+                    % figure(1)
+                    % 
+                    % % within condition, plot the granger values
+                    % 
+                    % % scatter plot of prior Condition granger values 
+                    % hold on; % Retain current plot when adding new plots
+                    % % Scatter plot
+                    % scatter(PriorOnly_Granger_Index_AllStongPairs, PretoneOnly_Granger_Index_AllStongPairs);
+                    % 
+                    % ax = gca;
+                    % ax.XAxis.Exponent = 0;  % Disable scientific notation for X-axis
+                    % ax.YAxis.Exponent = 0;  % Disable scientific notation for Y-axis
+                    % 
+                    % % Add labels
+                    % xlabel('PriorOnly A2P Granger Index');
+                    % ylabel('PriorOnly P2A Granger Index');
+                    % % Create the title string using sprintf
+                    % titleString = sprintf('%s - %s: Directionality of A.S.P. Granger Index PriorOnly', Animal, Frequency_Band);
+                    % % Set the title of the figure
+                    % title(titleString);
+                    % 
+                    % % % Set axes to be equal
+                    % % axis equal;
+                    % 
+                    %  % Set the origin to (0,0)
+                    % % Determine the range for the axes
+                    % xLimits = [min(PriorOnly_Granger_Index_AllStongPairs), max(PriorOnly_Granger_Index_AllStongPairs)];
+                    % yLimits = [min(PretoneOnly_Granger_Index_AllStongPairs), max(PretoneOnly_Granger_Index_AllStongPairs)];
+                    % 
+                    % % Apply the determined limits
+                    % xlim(xLimits);
+                    % ylim(yLimits);
+                    % 
+                    % plot([min([xLimits(1), yLimits(1)]), max([xLimits(2), yLimits(2)])], [min([xLimits(1), yLimits(1)]), max([xLimits(2), yLimits(2)])], 'r--'); % Red dashed line with slope 1
+                    % 
+                    % % Perform a paired t-test
+                    % [h, p] = ttest(PriorOnly_Granger_Index_AllStongPairs, PretoneOnly_Granger_Index_AllStongPairs);
+                    % 
+                    % % Display p-value on the plot
+                    % text(max(xlim)*0.05, max(ylim)*0.95, sprintf('p-value = %.4f', p), 'FontSize', 12, 'Color', 'b');
+                    % hold off
 
 %%
 
-figure(2)
+figure (1)
+
+                    set(gcf, 'PaperUnits', 'inches'); % Change to 'centimeters' if desired
+                    set(gcf, 'PaperPosition', [0 0 6 6]); % [left, bottom, width, height] in inches
 
                     % within condition, plot the granger values
 
@@ -648,12 +651,12 @@ figure(2)
                     ax.YAxis.Exponent = 0;  % Disable scientific notation for Y-axis
 
                     % Add labels
-                    xlabel('PriorOnly A2P Granger Value');
-                    ylabel('PriorOnly P2A Granger Value');
+                    xlabel('LED Trials A2P Granger Value', 'FontSize', 14);
+                    ylabel('LED Trials P2A Granger Value', 'FontSize', 14);
                     % Create the title string using sprintf
                     titleString = sprintf('%s - %s: Directionality of A.S.P. Granger Values PriorOnly', Animal, Frequency_Band);
                     % Set the title of the figure
-                    title(titleString);
+                    %title(titleString);
 
                     % % Set axes to be equal
                     % axis equal;
@@ -670,16 +673,20 @@ figure(2)
                     plot([min([xLimits(1), yLimits(1)]), max([xLimits(2), yLimits(2)])], [min([xLimits(1), yLimits(1)]), max([xLimits(2), yLimits(2)])], 'r--'); % Red dashed line with slope 1
 
                     % Perform a paired t-test
-                    [h, p] = ttest(PriorOnly_Granger_P2A_Values_AllStongPairs, PriorOnly_Granger_A2P_Values_AllStongPairs);
+                    [p, h, stats] = ranksum(PriorOnly_Granger_P2A_Values_AllStongPairs, PriorOnly_Granger_A2P_Values_AllStongPairs);
 
-                    % Display p-value on the plot
-                    text(max(xlim)*0.05, max(ylim)*0.95, sprintf('p-value = %.4f', p), 'FontSize', 12, 'Color', 'b');
+                 % Display p-value on the plot in the desired location
+                    text(xLimits(2) * 0.95, yLimits(2) * 0.95, sprintf('p-value = %.4f', p), ...
+                         'FontSize', 14, 'Color', 'b', 'HorizontalAlignment', 'right');
+                                        
                     hold off
-
 
                     %%
 
-figure(3)
+figure(2)
+
+                    set(gcf, 'PaperUnits', 'inches'); % Change to 'centimeters' if desired
+                    set(gcf, 'PaperPosition', [0 0 6 6]); % [left, bottom, width, height] in inches
 
                     % within condition, plot the granger values
 
@@ -693,12 +700,12 @@ figure(3)
                     ax.YAxis.Exponent = 0;  % Disable scientific notation for Y-axis
 
                     % Add labels
-                    xlabel('PretoneOnly A2P Granger Value');
-                    ylabel('PretoneOnly P2A Granger Value');
+                    xlabel('Pretone Trials A2P Granger Value', 'FontSize', 14);
+                    ylabel('Pretone Trials P2A Granger Value', 'FontSize', 14);
                     % Create the title string using sprintf
                     titleString = sprintf('%s - %s: Directionality of A.S.P. Granger Values PretoneOnly', Animal, Frequency_Band);
                     % Set the title of the figure
-                    title(titleString);
+                    % title(titleString);
 
                     % % Set axes to be equal
                     % axis equal;
@@ -715,9 +722,10 @@ figure(3)
                     plot([min([xLimits(1), yLimits(1)]), max([xLimits(2), yLimits(2)])], [min([xLimits(1), yLimits(1)]), max([xLimits(2), yLimits(2)])], 'r--'); % Red dashed line with slope 1
 
                     % Perform a paired t-test
-                    [h, p] = ttest(PretoneOnly_Granger_P2A_Values_AllStongPairs, PretoneOnly_Granger_A2P_Values_AllStongPairs);
+                    [p, h, stats] = ranksum(PretoneOnly_Granger_P2A_Values_AllStongPairs, PretoneOnly_Granger_A2P_Values_AllStongPairs);
 
-                    % Display p-value on the plot
-                    text(max(xlim)*0.05, max(ylim)*0.95, sprintf('p-value = %.4f', p), 'FontSize', 12, 'Color', 'b');
+                    % Display p-value on the plot in the desired location
+                    text(xLimits(2) * 0.95, yLimits(2) * 0.95, sprintf('p-value = %.4f', p), ...
+                         'FontSize', 14, 'Color', 'b', 'HorizontalAlignment', 'right');
+                                        
                     hold off
-

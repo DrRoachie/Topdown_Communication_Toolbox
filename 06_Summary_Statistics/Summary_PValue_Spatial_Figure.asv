@@ -6,7 +6,7 @@
 
 %% Define data
 
-Frequency_Band  = 'theta';               % 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
+Frequency_Band  = 'beta';               % 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
 Statistic       = 'Coherence';             % 'Granger' or 'Coherence'
 animals         = {'MrCassius'};         % 'MrCassius' and/or 'MrM'
 
@@ -27,7 +27,7 @@ for i = 1:length(sessions)
     for j = 1:length(animals)
 
         Animal = animals{j};
-        Epoch  = 'preCueOnset';   % Epoch  = 'testToneOnset'; 'preCueOnset'
+        Epoch  = 'testToneOnset';   % Epoch  = 'testToneOnset'; 'preCueOnset'
 
         if exist(fullfile(rootdir, RecDate, Animal), 'dir') % if the session has the animal (one animal per session)
             if strcmp(Statistic, 'Coherence')

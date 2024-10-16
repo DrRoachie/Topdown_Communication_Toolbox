@@ -1,6 +1,6 @@
 Communication_Toolbox
 
-Last Updated: 07/29/24
+Last Updated: 10/16/24
 
 This is the code that CR and SF developed to calculate communication between PFC and AC as a function of prior information (i.e, often designated as OnlyPrior and OnlyPretone trials). More specifically, it takes oscillation (LFP) data held in the 00_DATA folder and calculates coherence, granger, and xcorr between significantly modulated channel pairs. Each directory (both code and data) should be amended with descriptions of what is held within. This document serves as a high level description of the code to put everything into context. 
 
@@ -20,6 +20,9 @@ See the \\00_DATA\01_Lalitta_Cut for more details, but basically all the code th
 
 https://www.dropbox.com/scl/fo/xb2cfxn1u0jddoojyzm3a/h?rlkey=hm9h36esn7k9dql652nzst5vm&dl=0 
 
+00_CSD
+
+This directory is under construction, but takes the search stimulus blocks that Lalitta built and calculates the CSD for each channel. We plan on using this to adjust correct the alignment of our probe in auditory cortex with the goal of designating the strongest MUA/earliest sink to channel 12 (layer 4)
 
 01_Preprocessing 
 
