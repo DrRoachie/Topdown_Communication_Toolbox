@@ -6,11 +6,11 @@
 
 %% Define data
 
-Frequency_Band  = 'theta';               % 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
+Frequency_Band  = 'beta';               % 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
 Statistic       = 'Coherence';             % 'Granger' or 'Coherence'
-animals         = {'MrCassius'};         % 'MrCassius' and/or 'MrM'
+animals         = {'MrM'};         % 'MrCassius' and/or 'MrM'
 
-rootdir  = 'D:\2024_09_27_Analysis';
+rootdir  = 'E:\2024_09_27_TestTone_Correct';
 sessions = dir(fullfile(rootdir, '19*'));
 
 if strcmp(Statistic, 'Coherence')
@@ -27,7 +27,7 @@ for i = 1:length(sessions)
     for j = 1:length(animals)
 
         Animal = animals{j};
-        Epoch  = 'preCueOnset';   % Epoch  = 'testToneOnset'; 'preCueOnset'
+        Epoch  = 'testToneOnset';   % Epoch  = 'testToneOnset'; 'preCueOnset'
 
         if exist(fullfile(rootdir, RecDate, Animal), 'dir') % if the session has the animal (one animal per session)
             if strcmp(Statistic, 'Coherence')
@@ -123,77 +123,78 @@ if strcmp(Statistic, 'Coherence')
 
         figure
 
-        % % configure grid
-        % s = [20 20]; % [y x]
-        % xrange = [3 22]; % imagesc only needs the endpoints
-        % yrange = [3 22];
-        % dx = diff(xrange)/(s(2)-1);
-        % dy = diff(yrange)/(s(1)-1);
-        % xg = linspace(xrange(1)-dx/2,xrange(2)+dx/2,s(2)+1);
-        % yg = linspace(yrange(1)-dy/2,yrange(2)+dy/2,s(1)+1);
-        % 
-        % % plot heatmap
-        % imagesc(xrange,yrange,ChanPair_Array_Coh); hold on
-        % clim([0 8]);   % Set minimum color value to 0 and maximum to 10
-        % colorbar
-        % cb = colorbar;
-        % ylabel(cb, '# of Sig.Interactions', 'FontSize', 24)
-        % cb.Label.Rotation = 270;
-        % 
-        % % adjust coloring
-        % hm = mesh(xg,yg,zeros(s+1));
-        % hm.FaceColor = 'none';
-        % hm.EdgeColor = 'k';
-        % 
-        % %title(['Distribution of Channel Pairs Significantly Modulated by Context', ':  ', Statistic, ':', Frequency_Band, ':', Animal]);
-        % xlabel('AC Channels', 'FontSize', 32);
-        % ylabel('PFC Channels', 'FontSize', 32);
-        % 
-        % ax = gca; % Get current axis
-        % ax.FontSize = 20; % Set font size for tick marks
+        % configure grid
+        s = [20 20]; % [y x]
+        xrange = [3 22]; % imagesc only needs the endpoints
+        yrange = [3 22];
+        dx = diff(xrange)/(s(2)-1);
+        dy = diff(yrange)/(s(1)-1);
+        xg = linspace(xrange(1)-dx/2,xrange(2)+dx/2,s(2)+1);
+        yg = linspace(yrange(1)-dy/2,yrange(2)+dy/2,s(1)+1);
+
+        % plot heatmap
+        imagesc(xrange,yrange,ChanPair_Array_Coh); hold on
+        clim([0 8]);   % Set minimum color value to 0 and maximum to 10
+        colorbar
+        cb = colorbar;
+        ylabel(cb, '# of Sig.Interactions', 'FontSize', 12)
+        cb.Label.Rotation = 270;
+
+        % adjust coloring
+        hm = mesh(xg,yg,zeros(s+1));
+        hm.FaceColor = 'none';
+        hm.EdgeColor = 'k';
+
+        title([Statistic, '-', Frequency_Band, '-', Animal],...
+            'Fontsize', 12);
+        xlabel('AC Channels', 'FontSize', 12);
+        ylabel('PFC Channels', 'FontSize', 12);
+
+        ax = gca; % Get current axis
+        ax.FontSize = 12; % Set font size for tick marks
 
         % configure grid
-s = [20 20]; % [y x]
-xrange = [3 22]; % imagesc only needs the endpoints
-yrange = [3 22];
-dx = diff(xrange)/(s(2)-1);
-dy = diff(yrange)/(s(1)-1);
-xg = linspace(xrange(1)-dx/2,xrange(2)+dx/2,s(2)+1);
-yg = linspace(yrange(1)-dy/2,yrange(2)+dy/2,s(1)+1);
-
-% plot heatmap
-figure; % Create new figure
-imagesc(xrange, yrange, ChanPair_Array_Coh); hold on
-clim([0 8]);   % Set minimum color value to 0 and maximum to 10
-colorbar;
-cb = colorbar;
-ylabel(cb, '# of Sig.Interactions', 'FontSize', 24);
-cb.Label.Rotation = 270;
-
-% adjust coloring
-hm = mesh(xg, yg, zeros(s+1));
-hm.FaceColor = 'none';
-hm.EdgeColor = 'k';
-
-% Labels and axis settings
-xlabel('AC Channels', 'FontSize', 32);
-ylabel('PFC Channels', 'FontSize', 32);
-ax = gca; % Get current axis
-ax.FontSize = 20; % Set font size for tick marks
-
-% Set figure size to 7.65 inches wide and 6 inches tall
-set(gcf, 'PaperUnits', 'inches');
-set(gcf, 'PaperPosition', [0 0 7.65 6]); % [left, bottom, width, height]
-
-% Define save directory and file name
-saveDir = 'C:\Users\Corey Roach\Desktop\2024_SFN_Poster'; % Replace with your desired path
-saveFileName = 'heatmap_highres.png'; % File name
-
-% Full file path
-fullFilePath = fullfile(saveDir, saveFileName);
-
-% Save the figure as a high-resolution image (e.g., 300 dpi)
-print(gcf, fullFilePath, '-dpng', '-r300'); % Save as PNG at 300 dpi
+% s = [20 20]; % [y x]
+% xrange = [3 22]; % imagesc only needs the endpoints
+% yrange = [3 22];
+% dx = diff(xrange)/(s(2)-1);
+% dy = diff(yrange)/(s(1)-1);
+% xg = linspace(xrange(1)-dx/2,xrange(2)+dx/2,s(2)+1);
+% yg = linspace(yrange(1)-dy/2,yrange(2)+dy/2,s(1)+1);
+% 
+% % plot heatmap
+% figure; % Create new figure
+% imagesc(xrange, yrange, ChanPair_Array_Coh); hold on
+% clim([0 8]);   % Set minimum color value to 0 and maximum to 10
+% colorbar;
+% cb = colorbar;
+% ylabel(cb, '# of Sig.Interactions', 'FontSize', 24);
+% cb.Label.Rotation = 270;
+% 
+% % adjust coloring
+% hm = mesh(xg, yg, zeros(s+1));
+% hm.FaceColor = 'none';
+% hm.EdgeColor = 'k';
+% 
+% % Labels and axis settings
+% xlabel('AC Channels', 'FontSize', 32);
+% ylabel('PFC Channels', 'FontSize', 32);
+% ax = gca; % Get current axis
+% ax.FontSize = 20; % Set font size for tick marks
+% 
+% % Set figure size to 7.65 inches wide and 6 inches tall
+% set(gcf, 'PaperUnits', 'inches');
+% set(gcf, 'PaperPosition', [0 0 7.65 6]); % [left, bottom, width, height]
+% 
+% % Define save directory and file name
+% saveDir = 'C:\Users\Corey Roach\Desktop\2024_SFN_Poster'; % Replace with your desired path
+% saveFileName = 'heatmap_highres.png'; % File name
+% 
+% % Full file path
+% fullFilePath = fullfile(saveDir, saveFileName);
+% 
+% % Save the figure as a high-resolution image (e.g., 300 dpi)
+% print(gcf, fullFilePath, '-dpng', '-r300'); % Save as PNG at 300 dpi
 
 
        
