@@ -12,3 +12,4 @@ Pairwise_Connectivity_Wrapper: This was provided to Noga (a visiting Israeli stu
 
 Pairwise_Connectivity_Test_Uber_v2: A stripped down version of Pairwise_Connectivity_Test_Uber_v2 that cuts out generating and saving all the plots, and simply outputs the XCorr analysis and the Maris Test Results. 
 
+Agnostic_Connectivity_Test_Uber: Technically, version 3, this version of the connectivity test can run the Maris Procedure on the data filtered by SNR and congruency. It also outputs xcorr and phase slope index for each shared channel pair between the two conditions (depending on the exp., this could just be channels from one condition used for both). T

@@ -116,6 +116,7 @@ for rd = 1:length(session_info(:,1))
                                                 fclose('all');
                                 else
         
+                    
                     % Get the Channel Pairs that are shared by both the OnlyPrior and OnlyPretone Condition 
                     % now we build a matrix of all of the shared channel pairs 
                     

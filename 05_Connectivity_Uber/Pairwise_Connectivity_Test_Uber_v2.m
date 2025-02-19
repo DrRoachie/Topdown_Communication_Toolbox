@@ -145,7 +145,7 @@ for rd = 1:length(session_info(:,1))
     
                             if strcmp(Behavior,'Correct') == 1
         
-                            [OnlyPrior_shuffled_xcorr_result, OnlyPrior_shuffled_lagsResults,OnlyPrior_xcorr_result, OnlyPrior_lagsResults] = TrialbyTrialXcorr(datadir, Animal, RecDate, Epoch, 'OnlyPrior', Current_ChanPair);
+                            [OnlyPrior_shuffled_xcorr_result, OnlyPrior_shuffled_lagsResults,OnlyPrior_xcorr_result, OnlyPrior_lagsResults]          = TrialbyTrialXcorr(datadir, Animal, RecDate, Epoch, 'OnlyPrior', Current_ChanPair);
                             [OnlyPretone_shuffled_xcorr_result, OnlyPretone_shuffled_lagsResults, OnlyPretone_xcorr_result, OnlyPretone_lagsResults] = TrialbyTrialXcorr(datadir, Animal, RecDate, Epoch, 'OnlyPretone', Current_ChanPair);
         
                             save_file_name = sprintf('%s_%s_%s_%s_%s_%s_XCorr_data.mat', Animal, RecDate, Epoch, Current_ChanPair_lb, Frequency_Band, Behavior);
