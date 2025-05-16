@@ -6,11 +6,11 @@
 
 %% Define data
 
-Frequency_Band  = 'beta';               % 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
+Frequency_Band  = 'theta';               % 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
 Statistic       = 'Coherence';             % 'Granger' or 'Coherence'
 animals         = {'MrM'};         % 'MrCassius' and/or 'MrM'
 
-rootdir  = 'E:\2024_09_27_TestTone_Correct';
+rootdir  = '\\Kilosort\d\Top_Down_Coherence_Project\00_DATA\zz_METADATA\2024_09_27_TestTone_Correct';
 sessions = dir(fullfile(rootdir, '19*'));
 
 if strcmp(Statistic, 'Coherence')

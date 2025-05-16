@@ -1,41 +1,98 @@
-% Define sessions
 
-session_info = {'MrCassius', '190330' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190404' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190413' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190416' 'testToneOnset', 'Correct', {'theta'};
-                'MrM', '190417' 'testToneOnset', 'Correct', {'theta'}
-                'MrCassius', '190418' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190419' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190421' 'testToneOnset', 'Correct', {'theta'};
-                'MrM', '190422' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190423' 'testToneOnset', 'Correct', {'theta'};
-                'MrM', '190425' 'testToneOnset', 'Correct', {'theta'};
-                'MrM', '190427' 'testToneOnset', 'Correct', {'theta'};
-                'MrM', '190502' 'testToneOnset', 'Correct', {'theta'};
-                'MrM', '190514' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190515' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190517' 'testToneOnset', 'Correct', {'theta'};
-                'MrM', '190525' 'testToneOnset', 'Correct', {'theta'};
-                'MrM', '190527' 'testToneOnset', 'Correct', {'theta'};
-                'MrM', '190530' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190531' 'testToneOnset', 'Correct', {'theta'};
-                'MrM', '190601' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190603' 'testToneOnset', 'Correct', {'theta'};
-                'MrM', '190604' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190605' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190703' 'testToneOnset', 'Correct', {'theta'};
-                'MrM', '190704' 'testToneOnset', 'Correct', {'theta'};
-                'MrM', '190709' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190711' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190713' 'testToneOnset', 'Correct', {'theta'};
-                'MrM', '190717' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190718' 'testToneOnset', 'Correct', {'theta'};
-                'MrM', '190719' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190720' 'testToneOnset', 'Correct', {'theta'};
-                'MrM', '190722' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190723' 'testToneOnset', 'Correct', {'theta'};
-                'MrCassius', '190725' 'testToneOnset', 'Correct', {'theta'};};
+% Let's separate the trials SNR and congruent and non congruent trials 
+
+
+% For PriorOnly Trials get congruent channels (HH_LED_Target, LL_LED_Target)
+    % separate congruent trials by SNR
+        %further separate by correct trial
+        % we know the how the animal ultimately behaves. We are quantifying
+        % how communication changes before animal's decision 
+        
+% For PriorOnly Trials get incongruent channels (HL_LED_Target, LH_LED_Target)
+    % separate incongruent trials by SNR 
+     %further separate by correct trial
+        % we know the how the animal ultimately behaves. We are quantifying
+        % how communication changes before animal's decision 
+
+Condition         = 'OnlyPretone';                                                 % Options: 'OnlyPrior' or 'OnlyPretone' or 'Both'
+SNR              = [-1.5000, -1.2500, 1.2500, 1.5000];                          % Options: LOW
+%SNR               = [-11/6, -5/3, 5/3, 11/6];                                    % Options: HIGH
+%SNR              = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000];  % Options: any combination of  -11/6, -5/3, -1.5000, -1.2500, 0, 1.2500, 1.5000, 5/3, 11/6; 
+
+
+% session_info = {'MrCassius', '190330' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190404' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190413' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190416' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrM', '190417' 'testToneOnset', 'Correct', {'theta'}
+%                 'MrCassius', '190418' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190419' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190421' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrM', '190422' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190423' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrM', '190425' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrM', '190427' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrM', '190502' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrM', '190514' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190515' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190517' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrM', '190525' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrM', '190527' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrM', '190530' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190531' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrM', '190601' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190603' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrM', '190604' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190605' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190703' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrM', '190704' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrM', '190709' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190711' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190713' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrM', '190717' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190718' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrM', '190719' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190720' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrM', '190722' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190723' 'testToneOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190725' 'testToneOnset', 'Correct', {'theta'};};
+
+% session_info = {'MrCassius', '190330' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190404' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190413' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190416' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrM', '190417' 'preCueOnset', 'Correct', {'theta'}
+%                 'MrCassius', '190418' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190419' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190421' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrM', '190422' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190423' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrM', '190425' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrM', '190427' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrM', '190502' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrM', '190514' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190515' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190517' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrM', '190525' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrM', '190527' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrM', '190530' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190531' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrM', '190601' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190603' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrM', '190604' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190605' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190703' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrM', '190704' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrM', '190709' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190711' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190713' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrM', '190717' 'preCueOnset', 'Correct', {'theta'};
+%                 %'MrCassius', '190718' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrM', '190719' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190720' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrM', '190722' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190723' 'preCueOnset', 'Correct', {'theta'};
+%                 'MrCassius', '190725' 'preCueOnset', 'Correct', {'theta'};};
 
 % session_info = {'MrCassius', '190330' 'testToneOnset', 'Wrong', {'theta'};
 %                 'MrCassius', '190404' 'testToneOnset', 'Wrong', {'theta'};
@@ -74,42 +131,117 @@ session_info = {'MrCassius', '190330' 'testToneOnset', 'Correct', {'theta'};
 %                 'MrCassius', '190723' 'testToneOnset', 'Wrong', {'theta'};
 %                 'MrCassius', '190725' 'testToneOnset', 'Wrong', {'theta'};};
 
-% session_info = {'MrCassius', '190330' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190404' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190413' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190416' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrM', '190417' 'testToneOnset', 'Correct', {'alpha'}
-%                 'MrCassius', '190418' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190419' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190421' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrM', '190422' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190423' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrM', '190425' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrM', '190427' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrM', '190502' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrM', '190514' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190515' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190517' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrM', '190525' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrM', '190527' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrM', '190530' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190531' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrM', '190601' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190603' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrM', '190604' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190605' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190703' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrM', '190704' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrM', '190709' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190711' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190713' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrM', '190717' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190718' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrM', '190719' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190720' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrM', '190722' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190723' 'testToneOnset', 'Correct', {'alpha'};
-%                 'MrCassius', '190725' 'testToneOnset', 'Correct', {'alpha'};};
+% session_info = {'MrCassius', '190330' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrCassius', '190404' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrCassius', '190413' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrCassius', '190416' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrM', '190417' 'preCueOnset', 'Wrong', {'theta'}
+%                 'MrCassius', '190418' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrCassius', '190419' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrCassius', '190421' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrM', '190422' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrCassius', '190423' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrM', '190425' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrM', '190427' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrM', '190502' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrM', '190514' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrCassius', '190515' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrCassius', '190517' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrM', '190525' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrM', '190527' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrM', '190530' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrCassius', '190531' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrM', '190601' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrCassius', '190603' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrM', '190604' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrCassius', '190605' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrCassius', '190703' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrM', '190704' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrM', '190709' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrCassius', '190711' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrCassius', '190713' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrM', '190717' 'preCueOnset', 'Wrong', {'theta'};
+%                 %'MrCassius', '190718' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrM', '190719' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrCassius', '190720' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrM', '190722' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrCassius', '190723' 'preCueOnset', 'Wrong', {'theta'};
+%                 'MrCassius', '190725' 'preCueOnset', 'Wrong', {'theta'};};
+
+
+session_info = {'MrCassius', '190330' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190404' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190413' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190416' 'testToneOnset', 'Correct', {'alpha'};
+                'MrM', '190417' 'testToneOnset', 'Correct', {'alpha'}
+                'MrCassius', '190418' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190419' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190421' 'testToneOnset', 'Correct', {'alpha'};
+                'MrM', '190422' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190423' 'testToneOnset', 'Correct', {'alpha'};
+                'MrM', '190425' 'testToneOnset', 'Correct', {'alpha'};
+                'MrM', '190427' 'testToneOnset', 'Correct', {'alpha'};
+                'MrM', '190502' 'testToneOnset', 'Correct', {'alpha'};
+                'MrM', '190514' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190515' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190517' 'testToneOnset', 'Correct', {'alpha'};
+                'MrM', '190525' 'testToneOnset', 'Correct', {'alpha'};
+                'MrM', '190527' 'testToneOnset', 'Correct', {'alpha'};
+                'MrM', '190530' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190531' 'testToneOnset', 'Correct', {'alpha'};
+                'MrM', '190601' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190603' 'testToneOnset', 'Correct', {'alpha'};
+                'MrM', '190604' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190605' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190703' 'testToneOnset', 'Correct', {'alpha'};
+                'MrM', '190704' 'testToneOnset', 'Correct', {'alpha'};
+                'MrM', '190709' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190711' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190713' 'testToneOnset', 'Correct', {'alpha'};
+                'MrM', '190717' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190718' 'testToneOnset', 'Correct', {'alpha'};
+                'MrM', '190719' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190720' 'testToneOnset', 'Correct', {'alpha'};
+                'MrM', '190722' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190723' 'testToneOnset', 'Correct', {'alpha'};
+                'MrCassius', '190725' 'testToneOnset', 'Correct', {'alpha'};};
+
+% session_info = {'MrCassius', '190330' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrCassius', '190404' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrCassius', '190413' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrCassius', '190416' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrM', '190417' 'preCueOnset', 'Correct', {'alpha'}
+%                 'MrCassius', '190418' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrCassius', '190419' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrCassius', '190421' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrM', '190422' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrCassius', '190423' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrM', '190425' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrM', '190427' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrM', '190502' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrM', '190514' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrCassius', '190515' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrCassius', '190517' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrM', '190525' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrM', '190527' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrM', '190530' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrCassius', '190531' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrM', '190601' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrCassius', '190603' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrM', '190604' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrCassius', '190605' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrCassius', '190703' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrM', '190704' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrM', '190709' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrCassius', '190711' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrCassius', '190713' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrM', '190717' 'preCueOnset', 'Correct', {'alpha'};
+%                 %'MrCassius', '190718' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrM', '190719' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrCassius', '190720' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrM', '190722' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrCassius', '190723' 'preCueOnset', 'Correct', {'alpha'};
+%                 'MrCassius', '190725' 'preCueOnset', 'Correct', {'alpha'};};
 
 % session_info = {'MrCassius', '190330' 'testToneOnset', 'Wrong', {'alpha'};
 %                 'MrCassius', '190404' 'testToneOnset', 'Wrong', {'alpha'};
@@ -148,8 +280,45 @@ session_info = {'MrCassius', '190330' 'testToneOnset', 'Correct', {'theta'};
 %                 'MrCassius', '190723' 'testToneOnset', 'Wrong', {'alpha'};
 %                 'MrCassius', '190725' 'testToneOnset', 'Wrong', {'alpha'};};
 
-% session_info = {
-%                 'MrCassius', '190404' 'testToneOnset', 'Correct', {'beta'};
+% session_info = {'MrCassius', '190330' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrCassius', '190404' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrCassius', '190413' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrCassius', '190416' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrM', '190417' 'preCueOnset', 'Wrong', {'alpha'}
+%                 'MrCassius', '190418' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrCassius', '190419' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrCassius', '190421' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrM', '190422' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrCassius', '190423' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrM', '190425' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrM', '190427' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrM', '190502' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrM', '190514' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrCassius', '190515' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrCassius', '190517' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrM', '190525' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrM', '190527' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrM', '190530' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrCassius', '190531' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrM', '190601' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrCassius', '190603' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrM', '190604' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrCassius', '190605' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrCassius', '190703' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrM', '190704' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrM', '190709' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrCassius', '190711' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrCassius', '190713' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrM', '190717' 'preCueOnset', 'Wrong', {'alpha'};
+%                 %'MrCassius', '190718' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrM', '190719' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrCassius', '190720' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrM', '190722' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrCassius', '190723' 'preCueOnset', 'Wrong', {'alpha'};
+%                 'MrCassius', '190725' 'preCueOnset', 'Wrong', {'alpha'};};
+
+
+% session_info = {'MrCassius', '190404' 'testToneOnset', 'Correct', {'beta'};
 %                 'MrCassius', '190413' 'testToneOnset', 'Correct', {'beta'};
 %                 'MrCassius', '190416' 'testToneOnset', 'Correct', {'beta'};
 %                 'MrCassius', '190418' 'testToneOnset', 'Correct', {'beta'};
@@ -165,8 +334,23 @@ session_info = {'MrCassius', '190330' 'testToneOnset', 'Correct', {'theta'};
 %                 'MrM', '190719' 'testToneOnset', 'Correct', {'beta'};
 %                 'MrCassius', '190723' 'testToneOnset', 'Correct', {'beta'};};
 
-% session_info = {
-%                 'MrCassius', '190404' 'testToneOnset', 'Wrong', {'beta'};
+% session_info = {'MrCassius', '190404' 'preCueOnset', 'Correct', {'beta'};
+%                 'MrCassius', '190413' 'preCueOnset', 'Correct', {'beta'};
+%                 'MrCassius', '190416' 'preCueOnset', 'Correct', {'beta'};
+%                 'MrCassius', '190418' 'preCueOnset', 'Correct', {'beta'};
+%                 'MrCassius', '190419' 'preCueOnset', 'Correct', {'beta'};
+%                 'MrM', '190422' 'preCueOnset', 'Correct', {'beta'};
+%                 'MrCassius', '190517' 'preCueOnset', 'Correct', {'beta'};
+%                 'MrM', '190525' 'preCueOnset', 'Correct', {'beta'};
+%                 'MrM', '190527' 'preCueOnset', 'Correct', {'beta'};
+%                 'MrM', '190601' 'preCueOnset', 'Correct', {'beta'};
+%                 'MrCassius', '190703' 'preCueOnset', 'Correct', {'beta'};
+%                 'MrCassius', '190713' 'preCueOnset', 'Correct', {'beta'};
+%                 'MrCassius', '190718' 'preCueOnset', 'Correct', {'beta'};
+%                 'MrM', '190719' 'preCueOnset', 'Correct', {'beta'};
+%                 'MrCassius', '190723' 'preCueOnset', 'Correct', {'beta'};};
+
+% session_info = {'MrCassius', '190404' 'testToneOnset', 'Wrong', {'beta'};
 %                 'MrCassius', '190413' 'testToneOnset', 'Wrong', {'beta'};
 %                 'MrCassius', '190416' 'testToneOnset', 'Wrong', {'beta'};
 %                 'MrCassius', '190418' 'testToneOnset', 'Wrong', {'beta'};
@@ -181,6 +365,24 @@ session_info = {'MrCassius', '190330' 'testToneOnset', 'Correct', {'theta'};
 %                 'MrCassius', '190718' 'testToneOnset', 'Wrong', {'beta'};
 %                 'MrM', '190719' 'testToneOnset', 'Wrong', {'beta'};
 %                 'MrCassius', '190723' 'testToneOnset', 'Wrong', {'beta'};};
+% 
+% session_info = {'MrCassius', '190404' 'preCueOnset', 'Wrong', {'beta'};
+%                 'MrCassius', '190413' 'preCueOnset', 'Wrong', {'beta'};
+%                 'MrCassius', '190416' 'preCueOnset', 'Wrong', {'beta'};
+%                 'MrCassius', '190418' 'preCueOnset', 'Wrong', {'beta'};
+%                 'MrCassius', '190419' 'preCueOnset', 'Wrong', {'beta'};
+%                 'MrM', '190422' 'preCueOnset', 'Wrong', {'beta'};
+%                 'MrCassius', '190517' 'preCueOnset', 'Wrong', {'beta'};
+%                 'MrM', '190525' 'preCueOnset', 'Wrong', {'beta'};
+%                 'MrM', '190527' 'preCueOnset', 'Wrong', {'beta'};
+%                 'MrM', '190601' 'preCueOnset', 'Wrong', {'beta'};
+%                 'MrCassius', '190703' 'preCueOnset', 'Wrong', {'beta'};
+%                 'MrCassius', '190713' 'preCueOnset', 'Wrong', {'beta'};
+%                 'MrCassius', '190718' 'preCueOnset', 'Wrong', {'beta'};
+%                 'MrM', '190719' 'preCueOnset', 'Wrong', {'beta'};
+%                 'MrCassius', '190723' 'preCueOnset', 'Wrong', {'beta'};};
+
+
 
 % main loop 1: Run for all sessions
 
@@ -192,8 +394,6 @@ for rd = 1:length(session_info(:,1))
     Epoch            = session_info{rd,3};                  % Options: 'testToneOnset', 'preCueOnset', or 'moveOnset'
     Behavior         = session_info{rd,4};                  % Options:  'Correct', Wrong, due to memory constraints                          
     RandomIteration  = 300;                                 % Options: the number of times you want to allocate the random partition, and generate the test statistic
-    %SNR             = [-1.5000, -1.2500, 1.2500, 1.5000];  % Options: any combination of  -11/6, -5/3, -1.5000, -1.2500, 0, 1.2500, 1.5000, 5/3, 11/6; default all
-    SNR               = [-11/6, -5/3, 5/3, 11/6];            % Options: any combination of  -11/6, -5/3, -1.5000, -1.2500, 0, 1.2500, 1.5000, 5/3, 11/6; default all
     freq_band_list   = session_info{rd,5};
     threshold_value  = 0.5;                                 % the threshold used for the monte carlo test between PriorOnly and PretoneOnly Conditions
 
@@ -201,7 +401,7 @@ for rd = 1:length(session_info(:,1))
     datadir = fullfile('D:\04_Epoc_Cut', Animal, extractBefore(Epoch, 'Onset'), RecDate); % epoch data, with the time chunk that you want isolated
     chandir = fullfile('D:\05_Significant_Channels', Behavior, Animal, extractBefore(Epoch, 'Onset'), RecDate);                                             % the sig channels that are output LFP_Spectral_Analysis
     specdir = fullfile('D:\02_Preprocessed', Animal, Epoch);                             % this is where the uncut preprocessed data is stored; you need the full time series for the spectogram
-    savedir = 'C:\Users\Corey Roach\Documents\00_DATA\PretoneOnly_LED_HighSNR_Correct_Congruency_PSI';                                        % path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
+    savedir = 'C:\Users\Corey Roach\Documents\00_DATA\PSI_Analysis_Alpha\PretoneOnly\PretoneOnly_TestTone_LowSNR_Correct_Congruency_PSI';                                        % path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
     
     sessions = dir(fullfile(datadir,'*.mat')); % bad naming convention but only ever one session at a time
     addpath(genpath(datadir));
@@ -221,7 +421,7 @@ for rd = 1:length(session_info(:,1))
 
         % Fetch the Condition_1 Channels (output of ChanWise_SpecEval)
         
-        Condition_1_SigChans_fn = sprintf('SigChannels_%s_%s_%s_%s_%s.mat', RecDate, Epoch, 'OnlyPrior', Behavior, Frequency_Band);
+        Condition_1_SigChans_fn = sprintf('SigChannels_%s_%s_%s_%s_%s.mat', RecDate, Epoch, Condition, Behavior, Frequency_Band);
         Condition_1_files = dir(fullfile(chandir, Condition_1_SigChans_fn));
                          
         if  isempty(Condition_1_files)
@@ -245,7 +445,7 @@ for rd = 1:length(session_info(:,1))
  
             % Fetch the Condition_2 Channels 
           
-            Condition_2_SigChans_fn = sprintf('SigChannels_%s_%s_%s_%s_%s.mat', RecDate, Epoch, 'OnlyPretone', Behavior, Frequency_Band);
+            Condition_2_SigChans_fn = sprintf('SigChannels_%s_%s_%s_%s_%s.mat', RecDate, Epoch, Condition, Behavior, Frequency_Band);
             Condition_2_files = dir(fullfile(chandir, Condition_2_SigChans_fn));
 
          
@@ -294,6 +494,7 @@ for rd = 1:length(session_info(:,1))
 
           else
 
+
              % clear variables used to generate shared channel pairs
              clear_list = {'AC_comb', 'common_AC_chans', 'common_PFC_chans', 'files', 'PFC_comb', 'Condition_1_PFC_chans', 'Condition_2_PFC_chans', ...
                           'Condition_1_AC_chans', 'Condition_2_AC_chans', 'Condition_1_modifiedCellArray', 'Condition_2_modifiedCellArray', ...
@@ -318,29 +519,8 @@ for rd = 1:length(session_info(:,1))
             
              % Recode the frequencies of the target at 'H' or 'L'rather than their frequency values. 
             
-             unique_vals = unique(V.stim);  % Get the two unique values
+             V = ConvertStim(V, RecDate);
             
-             % Identify the higher (H) and lower (L) values
-
-             high_val = max(unique_vals);
-             low_val  = min(unique_vals);
-            
-             % Create V.target as a cell array
-
-             V.target = cell(size(V.stim));  % Initialize V.target as a cell array
-            
-             % Assign 'H' for the higher value and 'L' for the lower value
-             for i = 1:length(V.stim)
-                if V.stim(i) == high_val
-                    V.target{i} = 'H';  % Higher value
-                else
-                    V.target{i} = 'L';  % Lower value
-                end
-             end
-            
-             params.target = V.target;
-            
-
              % Adds new field in data structure for OnlyPrior Trials that
              % indicates congruence between target and LED
 
@@ -403,7 +583,7 @@ for rd = 1:length(session_info(:,1))
             iSelect = setStimulusCondition(Condition);
             iSelect.err = 'c'; % choose correct trials
             iSelect.SNR = SNR;     % Options: Selected up to 4 values: -1.8333, -1.6667, -1.5000, -1.2500, 0, 1.2500, 1.5000, 1.6667, 1.8333 
-            iSelect.congruency = 'congruent';                     % Options: 'congruent', 'incongruent', and 'neutral'
+            iSelect.congruency = 'congruent';                     % Options: 'congruent', 'incongruent', and 'neural'
             Condition_1_data = selectData(V.data,params,iSelect);
             
             % Generate Condition 2 

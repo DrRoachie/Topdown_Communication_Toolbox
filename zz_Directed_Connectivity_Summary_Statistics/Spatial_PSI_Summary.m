@@ -1,10 +1,10 @@
 %% Define data
 
-Frequency_Band  = 'theta';                       % Options: 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
-Statistic       = 'PSI';                         % Options: 'Granger' or 'Coherence'
-animals         = {'MrM'};          % Options: 'MrCassius' and/or 'MrM'
+Frequency_Band  = 'theta';                     % Options: 'theta', 'alpha', 'beta', 'gamma', 'highGamma'
+Statistic       = 'PSI';                       % Options: 'Granger' or 'Coherence'
+animals         = {'MrCassius', 'MrM'};                     % Options: 'MrCassius' and/or 'MrM'
 Epoch           = 'testToneOnset';
-Behavior        = 'Correct';                     % Options: Correct or Wrong
+Behavior        = 'Correct';                   % Options: Correct or Wrong
 
 % Select PSI data directory
 % as of 1/14/25 the most important input is the directory because it
@@ -15,7 +15,7 @@ rootdir  = 'C:\Users\Corey Roach\Documents\00_DATA\PriorOnly_TestTone_HighSNR_Co
 sessions = dir(fullfile(rootdir, '19*'));
 
 % designations are used for outfile naming convention only
-SNR_designation = 'HighSNR';                     % Options: HighSNR or LowSNR
+SNR_designation = 'High';                     % Options: HighSNR or LowSNR
 Condition_1_designation = 'Congruent_Trials';    % Options: Can be almost any 
 Condition_2_designation = 'Incongruent_Trials';
 
@@ -30,8 +30,8 @@ Condition_2_PSI_grid = cell(20, 20);
 %% Loop through all sessions and sort PSI values by channel-pair 
 
 % Preallocate cell arrays for storing results
-num_sessions = length(sessions);
-monte_Results = cell(num_sessions, 1);
+num_sessions   = length(sessions);
+monte_Results  = cell(num_sessions, 1);
 Wilcox_Results = cell(num_sessions, 1);
 
 for i = 1:length(sessions)
@@ -67,10 +67,10 @@ for i = 1:length(sessions)
             datadir = fullfile(rootdir, RecDate, Animal, extractBefore(Epoch, 'Onset'), 'Correct', file_name);
             load(datadir);
            
-            dataMatrix_1 = PSI_Condition_1.psispctrm; 
-            labels_1 = PSI_Condition_1.labelcmb;         
-            dataMatrix_2 = PSI_Condition_2.psispctrm; 
-            labels_2 = PSI_Condition_2.labelcmb;         
+            dataMatrix_1  = PSI_Condition_1.psispctrm; 
+            labels_1      = PSI_Condition_1.labelcmb;         
+            dataMatrix_2  = PSI_Condition_2.psispctrm; 
+            labels_2      = PSI_Condition_2.labelcmb;         
     
            % Populate Condition_1_PSI_grid with data
         
@@ -403,8 +403,8 @@ end
 % axis square; % Make the heatmap square
 
 % Determine the global color range
-globalMin = -0.03;
-globalMax = 0.03;
+globalMin = -0.08;
+globalMax = 0.08;
 
 % Clamp values to the global color range
 averagedGrid_1_clamped = max(globalMin, min(globalMax, averagedGrid_1));
@@ -468,22 +468,86 @@ averagedGrid_2_neg(averagedGrid_2 < 0) = averagedGrid_2(averagedGrid_2 < 0);
 
 %%
 
-PosNegHistogram(averagedGrid_1_pos, averagedGrid_1_neg, averagedGrid_2_pos, averagedGrid_2_neg, 20)
-PosNegHistogramOutline(averagedGrid_1_pos, averagedGrid_1_neg, averagedGrid_2_pos, averagedGrid_2_neg, 20)
-
-%% get median, standard deviation, and standard error
-
-Summary.Congruent_PFC_to_AC_median   = median(averagedGrid_1_pos);
-Summary.Congruent_PFC_to_AC_std      = std(averagedGrid_1_pos, 0);
-Summary.Congruent_PFC_to_AC_stderr   = Summary.Congruent_PFC_to_AC_std / sqrt(length(averagedGrid_1_pos)); 
-
-Summary.Incongruent_PFC_to_AC_median   = median(averagedGrid_2_pos);
-Summary.Incongruent_PFC_to_AC_std      = std(averagedGrid_2_pos, 0);
-Summary.Incongruent_PFC_to_AC_stderr   = Summary.Incongruent_PFC_to_AC_std  / sqrt(length(averagedGrid_1_pos)); 
+Summary = PosNegHistogram(averagedGrid_1_pos, averagedGrid_1_neg, averagedGrid_2_pos, averagedGrid_2_neg, 20);
 
 
+%%
 
-Summary.Congruent_AC_to_PFC_median   = median(averagedGrid_1_neg); 
-Summary.Incongruent_AC_to_PFC_median = median(averagedGrid_2_neg);
+% PriorOnly_TestTone_HighSNR_Correct_Congruent_PFC_2_AC   = averagedGrid_1_pos;
+% PriorOnly_TestTone_HighSNR_Correct_Incongruent_PFC_2_AC = averagedGrid_2_pos;
+% PriorOnly_TestTone_HighSNR_Correct_Congruent_AC_2_PFC   = averagedGrid_1_neg;
+% PriorOnly_TestTone_HighSNR_Correct_Incongruent_AC_2_PFC = averagedGrid_2_neg;
+% 
+% % Define the directory where you want to save the files
+% save_dir = 'C:\Users\Corey Roach\Documents\00_DATA\PSI_Histogram_Summary'; % Change this to your actual directory
+% 
+% % List of variables to save
+% vars = {'PriorOnly_TestTone_HighSNR_Correct_Congruent_PFC_2_AC', 'PriorOnly_TestTone_HighSNR_Correct_Incongruent_PFC_2_AC', 'PriorOnly_TestTone_HighSNR_Correct_Congruent_AC_2_PFC', 'PriorOnly_TestTone_HighSNR_Correct_Incongruent_AC_2_PFC'}; % Replace with your actual variable names
+% 
+% % Loop through each variable and save it
+% for i = 1:length(vars)
+%     var_name = vars{i};
+%     file_path = fullfile(save_dir, [var_name, '.mat']); % Create full file path
+%     save(file_path, var_name); % Save the variable with its name
+% end
 
-averagedGrid_1_neg, averagedGrid_2_pos, averagedGrid_2_neg
+
+%%
+% 
+% PretoneOnly_TestTone_HighSNR_Correct_Congruent_PFC_2_AC   = averagedGrid_1_pos;
+% PretoneOnly_TestTone_HighSNR_Correct_Incongruent_PFC_2_AC = averagedGrid_2_pos;
+% PretoneOnly_TestTone_HighSNR_Correct_Congruent_AC_2_PFC   = averagedGrid_1_neg;
+% PretoneOnly_TestTone_HighSNR_Correct_Incongruent_AC_2_PFC = averagedGrid_2_neg;
+% 
+% % Define the directory where you want to save the files
+% save_dir = 'C:\Users\Corey Roach\Documents\00_DATA\PSI_Histogram_Summary'; % Change this to your actual directory
+% 
+% % List of variables to save
+% vars = {'PretoneOnly_TestTone_HighSNR_Correct_Congruent_PFC_2_AC', 'PretoneOnly_TestTone_HighSNR_Correct_Incongruent_PFC_2_AC', 'PretoneOnly_TestTone_HighSNR_Correct_Congruent_AC_2_PFC', 'PretoneOnly_TestTone_HighSNR_Correct_Incongruent_AC_2_PFC'}; % Replace with your actual variable names
+% 
+% % Loop through each variable and save it
+% for i = 1:length(vars)
+%     var_name = vars{i};
+%     file_path = fullfile(save_dir, [var_name, '.mat']); % Create full file path
+%     save(file_path, var_name); % Save the variable with its name
+% end
+
+%%
+
+% PriorOnly_TestTone_LowSNR_Correct_Congruent_PFC_2_AC   = averagedGrid_1_pos;
+% PriorOnly_TestTone_LowSNR_Correct_Incongruent_PFC_2_AC = averagedGrid_2_pos;
+% PriorOnly_TestTone_LowSNR_Correct_Congruent_AC_2_PFC   = averagedGrid_1_neg;
+% PriorOnly_TestTone_LowSNR_Correct_Incongruent_AC_2_PFC = averagedGrid_2_neg;
+% 
+% % Define the directory where you want to save the files
+% save_dir = 'C:\Users\Corey Roach\Documents\00_DATA\PSI_Histogram_Summary'; % Change this to your actual directory
+% 
+% % List of variables to save
+% vars = {'PriorOnly_TestTone_LowSNR_Correct_Congruent_PFC_2_AC', 'PriorOnly_TestTone_LowSNR_Correct_Incongruent_PFC_2_AC', 'PriorOnly_TestTone_LowSNR_Correct_Congruent_AC_2_PFC', 'PriorOnly_TestTone_LowSNR_Correct_Incongruent_AC_2_PFC'}; % Replace with your actual variable names
+% 
+% % Loop through each variable and save it
+% for i = 1:length(vars)
+%     var_name = vars{i};
+%     file_path = fullfile(save_dir, [var_name, '.mat']); % Create full file path
+%     save(file_path, var_name); % Save the variable with its name
+% end
+
+%%
+% 
+PretoneOnly_TestTone_LowSNR_Correct_Congruent_PFC_2_AC   = averagedGrid_1_pos;
+PretoneOnly_TestTone_LowSNR_Correct_Incongruent_PFC_2_AC = averagedGrid_2_pos;
+PretoneOnly_TestTone_LowSNR_Correct_Congruent_AC_2_PFC   = averagedGrid_1_neg;
+PretoneOnly_TestTone_LowSNR_Correct_Incongruent_AC_2_PFC = averagedGrid_2_neg;
+
+%Define the directory where you want to save the files
+save_dir = 'C:\Users\Corey Roach\Documents\00_DATA\PSI_Histogram_Summary'; % Change this to your actual directory
+
+% List of variables to save
+vars = {'PretoneOnly_TestTone_LowSNR_Correct_Congruent_PFC_2_AC', 'PretoneOnly_TestTone_LowSNR_Correct_Incongruent_PFC_2_AC', 'PretoneOnly_TestTone_LowSNR_Correct_Congruent_AC_2_PFC', 'PretoneOnly_TestTone_LowSNR_Correct_Incongruent_AC_2_PFC'}; % Replace with your actual variable names
+
+% Loop through each variable and save it
+for i = 1:length(vars)
+    var_name = vars{i};
+    file_path = fullfile(save_dir, [var_name, '.mat']); % Create full file path
+    save(file_path, var_name); % Save the variable with its name
+end

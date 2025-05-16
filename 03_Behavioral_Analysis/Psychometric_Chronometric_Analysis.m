@@ -12,9 +12,9 @@
 
 Animal      = 'MrCassius';          % 'MrCassius' or 'MrM'
 Epoch       = 'testToneOnset';      % 'testToneOnset' or 'preCueOnset' 
-Condition   = 'pretone';            % 'prior' or 'pretone'
+Condition   = 'prior';            % 'prior' or 'pretone'
 
-datadir     = fullfile('D:\05_Epoc_Cut_2', Animal, extractBefore(Epoch, 'Onset'));
+datadir     = fullfile('D:\04_Epoc_Cut', Animal, extractBefore(Epoch, 'Onset'));
 ddmdir      = 'D:\03_DDM_Decision_Times';
 ddm_fName   = '20210511_audiDeci_monkeyBeh_DT_13-Jun-2023';
 sessions    = dir(fullfile(datadir, '19*'));
@@ -22,7 +22,7 @@ sessions    = dir(fullfile(datadir, '19*'));
 
 %% generate psychometric curve
 
-total_proportion_H  = []; % size: prior x SNR x session (number of priors x 9 x number of sessions)
+total_proportion_H  = [];               % size: prior x SNR x session (number of priors x 9 x number of sessions)
 
 for k = 1:length(sessions)
 
@@ -68,71 +68,61 @@ for k = 1:length(sessions)
     total_proportion_H = cat(3,total_proportion_H, session_prop_H);
 end
 
-% calculate mean and standard error
-mean_proportion_H = mean(total_proportion_H,3);
-std_proportion_H = std(total_proportion_H, 0, 3) / sqrt(size(total_proportion_H, 3));
 
-% plot psychometric curve
+mean_proportion_H  = mean(total_proportion_H, 3);
+std_proportion_H   = std(total_proportion_H, 0, 3);
+n                  = size(total_proportion_H, 3); % number of observations
+
+% Calculate standard error
+standard_error     = std_proportion_H / sqrt(n);
+
+% Use Z-score for 95% confidence level (1.96)
+CI_lower           = mean_proportion_H - 1.96 * standard_error;
+CI_upper           = mean_proportion_H + 1.96 * standard_error;
+
+% Plot psychometric curve with confidence intervals
 figure; hold on;
 
-% % set(gcf, 'PaperUnits', 'inches'); % Change to 'centimeters' if desired
-% % set(gcf, 'PaperPosition', [0 0 6 6]); % [left, bottom, width, height] in inches
-% 
-% % Define colors for each prior condition
-% 
-% h = errorbar(SNR_list, mean_proportion_H(1,:), std_proportion_H(1,:), 'r.-', 'DisplayName', ['High ' Condition]);
-% l = errorbar(SNR_list, mean_proportion_H(2,:), std_proportion_H(2,:), 'b.-', 'DisplayName', ['Low ' Condition]);
-% 
-% h.CapSize = 0;
-% l.CapSize = 0;
-% 
-% if strcmp(Condition, 'prior')
-%     n = errorbar(SNR_list, mean_proportion_H(3,:), std_proportion_H(3,:), 'k.-', 'DisplayName', ['Neutral ' Condition]);
-%     n.CapSize = 0;
-% end
-% 
-% % xlabel('SNR', 'FontSize', 14);
-% % ylabel('Proportion Choose H', 'FontSize', 14);
-% %title([Animal ' Psychometric Curve']);
-% ylim([0,1]);
-% legend('Location', 'southeast');  % Bottom right position
-% legend show;
-
 % Define light colors for each prior condition
-light_blue = [0.68, 0.85, 0.9];  % Light Blue
-light_green = [0.56, 0.93, 0.56];  % Light Green
-dandelion_yellow = [0.94, 0.88, 0.19];  % Dandelion Yellow
+light_blue       = [0.68, 0.85, 0.9];  % Light Blue
+light_green      = [0.56, 0.93, 0.56]; % Light Green
+dandelion_yellow = [0.94, 0.88, 0.19]; % Dandelion Yellow
+
+% Calculate error bars using confidence intervals
+CI_error_H = mean_proportion_H - CI_lower; % Upper and lower errors are symmetric
 
 % Plot for High Prior (Light Blue)
-h = errorbar(SNR_list, mean_proportion_H(1,:), std_proportion_H(1,:), ...
+h = errorbar(SNR_list, mean_proportion_H(1,:), CI_error_H(1,:), CI_error_H(1,:), ...
     '.-', 'Color', light_blue, 'LineWidth', 4);
 h.CapSize = 0;
 
 % Plot for Low Prior (Light Green)
-l = errorbar(SNR_list, mean_proportion_H(2,:), std_proportion_H(2,:), ...
+l = errorbar(SNR_list, mean_proportion_H(2,:), CI_error_H(2,:), CI_error_H(2,:), ...
     '.-', 'Color', light_green, 'LineWidth', 4);
 l.CapSize = 0;
 
 % Check for Neutral Prior condition (Dandelion Yellow)
 if strcmp(Condition, 'prior')
-    n = errorbar(SNR_list, mean_proportion_H(3,:), std_proportion_H(3,:), ...
+    n = errorbar(SNR_list, mean_proportion_H(3,:), CI_error_H(3,:), CI_error_H(3,:), ...
         '.-', 'Color', dandelion_yellow, 'LineWidth', 4);
     n.CapSize = 0;
 end
 
 % Customize axes and labels
 ylim([0, 1]);
+set(gca, 'XTick', [-2, -1, 0, 1, 2]);  % Set specific x-tick positions
 
 % Set y-axis ticks to 0, 0.5, and 1 with font size 24
 set(gca, 'YTick', [0 0.5 1], 'YTickLabel', {'0', '0.5', '1'}, 'FontSize', 24);
+
 
 % Show specific x-axis tick marks for 'pretone' condition
 if strcmp(Condition, 'pretone')
     set(gca, 'XTick', [-2, -1, 0, 1, 2]);  % Set specific x-tick positions
 else
-    % Remove x-axis tick marks and labels for 'prior' condition
-    set(gca, 'XTick', []);  % Remove tick marks
-    set(gca, 'XTickLabel', []);  % Remove labels
+    % % Remove x-axis tick marks and labels for 'prior' condition
+    % set(gca, 'XTick', []);  % Remove tick marks
+    % set(gca, 'XTickLabel', []);  % Remove labels
 end
 
 % Set font to Arial for the entire plot
@@ -217,77 +207,19 @@ end
 
 % calculate mean reaction time and standard error
 mean_RTs    = nanmean(total_RTs,3);
-std_RTs     = nanstd(total_RTs, 0, 3) / sqrt(size(total_RTs, 3));
+%std_RTs     = nanstd(total_RTs, 0, 3) / sqrt(size(total_RTs, 3));
+std_RTs     = nanstd(total_RTs, 0, 3);
 
 % plot chronometric curve
 figure; hold on;
 
-% % points to connect - first half and second half
-% first_half = [1,2,3,4];
-% second_half = [6,7,8,9];
-% first_and_second = [first_half, second_half];
-% 
-% % plot first and second half
-% if strcmp(Condition, 'prior')
-%     % scatter plot
-%     l = errorbar(SNR_list(first_and_second), mean_RTs(1,(first_and_second)), std_RTs(1,(first_and_second)), 'b.');
-%     n = errorbar(SNR_list(first_and_second), mean_RTs(2,(first_and_second)), std_RTs(2,(first_and_second)), 'k.');
-%     h = errorbar(SNR_list(first_and_second), mean_RTs(3,(first_and_second)), std_RTs(3,(first_and_second)), 'r.');
-% 
-%     l.CapSize = 0;
-%     n.CapSize = 0;
-%     h.CapSize = 0;
-% 
-%     % connecting lines
-%     plot(SNR_list(first_half), mean_RTs(1,first_half), 'b-');
-%     plot(SNR_list(second_half), mean_RTs(1,second_half), 'b-');
-% 
-%     plot(SNR_list(first_half), mean_RTs(2,first_half), 'k-');
-%     plot(SNR_list(second_half), mean_RTs(2,second_half), 'k-');
-% 
-%     plot(SNR_list(first_half), mean_RTs(3,first_half), 'r-');
-%     plot(SNR_list(second_half), mean_RTs(3,second_half), 'r-');
-% 
-% elseif strcmp(Condition, 'pretone')
-%     % scatter plot
-%     h = errorbar(SNR_list(first_and_second), mean_RTs(1,(first_and_second)), std_RTs(1,(first_and_second)), 'r.');
-%     l = errorbar(SNR_list(first_and_second), mean_RTs(2,(first_and_second)), std_RTs(2,(first_and_second)), 'b.');
-% 
-%     h.CapSize = 0;
-%     l.CapSize = 0;
-% 
-%     % connecting lines
-%     plot(SNR_list(first_half), mean_RTs(1,first_half), 'r-');
-%     plot(SNR_list(second_half), mean_RTs(1,second_half), 'r-');
-% 
-%     plot(SNR_list(first_half), mean_RTs(2,first_half), 'b-');
-%     plot(SNR_list(second_half), mean_RTs(2,second_half), 'b-');
-% end
-% 
-% % xlabel('SNR', 'FontSize', 14);
-% % ylabel('Reaction Time (ms, correct trials)', 'FontSize', 14);
-% %title([Animal ' Chronometric Curve']);
-% xlim([-1,1]);
-% if strcmp(Condition, 'prior')
-%     legend('Location', 'southeast');  % Bottom right position
-%     legend('Low Prior', 'Neutral prior', 'High prior');
-% elseif strcmp(Condition, 'pretone')
-%     legend('Location', 'southeast');  % Bottom right position
-%     legend('High Pretone', 'Low Pretone');
-% end
-% Define light colors for each prior condition
-% Define light colors for each prior condition
-% Define light colors for each prior condition
-% Define light colors for each prior condition
-% Define light colors for each prior condition
-% Define light colors for each prior condition
 light_blue = [0.68, 0.85, 0.9];  % Light Blue
 light_green = [0.56, 0.93, 0.56];  % Light Green
 dandelion_yellow = [0.94, 0.88, 0.19];  % Dandelion Yellow
 
 % Points to connect - first half and second half
-first_half = [1, 2, 3, 4];
-second_half = [6, 7, 8, 9];
+first_half       = [1, 2, 3, 4];
+second_half      = [6, 7, 8, 9];
 first_and_second = [first_half, second_half];
 
 % Plot first and second half
@@ -314,6 +246,7 @@ if strcmp(Condition, 'prior')
 
     plot(SNR_list(first_half), mean_RTs(3, first_half), '-', 'Color', light_blue, 'LineWidth', 4);  % High Prior
     plot(SNR_list(second_half), mean_RTs(3, second_half), '-', 'Color', light_blue, 'LineWidth', 4);
+    set(gca, 'XTick', [-2, -1, 0, 1, 2]);  % Set specific x-tick positions
 
 elseif strcmp(Condition, 'pretone')
     % Scatter plot for pretone condition
@@ -332,6 +265,7 @@ elseif strcmp(Condition, 'pretone')
 
     plot(SNR_list(first_half), mean_RTs(2, first_half), '-', 'Color', light_green, 'LineWidth', 4);  % Low Pretone
     plot(SNR_list(second_half), mean_RTs(2, second_half), '-', 'Color', light_green, 'LineWidth', 4);
+    set(gca, 'XTick', [-2, -1, 0, 1, 2]);  % Set specific x-tick positions
 
 end
 
@@ -355,9 +289,9 @@ set(gca, 'YTick', [min_y_rounded, mid_y_rounded, max_y_rounded], ...
 if strcmp(Condition, 'pretone')
     set(gca, 'XTick', [-2, -1, 0, 1, 2]);  % Set specific x-tick positions
 else
-    % Remove x-axis tick marks and labels for 'prior' condition
-    set(gca, 'XTick', []);  % Remove tick marks
-    set(gca, 'XTickLabel', []);  % Remove labels
+    % % Remove x-axis tick marks and labels for 'prior' condition
+    % set(gca, 'XTick', []);  % Remove tick marks
+    % set(gca, 'XTickLabel', []);  % Remove labels
 end
 
 % Set font to Arial for the entire plot
