@@ -78,7 +78,7 @@ if strcmp(Behavior,'Correct') == 1 || strcmp(Behavior,'Both')==1
             for lc = 1:length(LayerGrouping_List)
 
                 LayerGroup = LayerGrouping_List{lc};
-                Condition = 'OnlyPrior';                          % options: 'OnlyPrior', 'OnlyPretone', & 'Both';
+                                     % options: 'OnlyPrior', 'OnlyPretone', & 'Both';
                 Channels  = PriorOnly_SigChans_st_c.PriorOnly_Chans_Filtered.(LayerGroup);
 
                         if isempty(Channels)
@@ -104,7 +104,7 @@ if strcmp(Behavior,'Correct') == 1 || strcmp(Behavior,'Both')==1
                         end
             end
     end
-end
+
 
 
                 % load fieldtrip data formatted by bipolarLFP.m

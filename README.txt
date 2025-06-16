@@ -1,8 +1,8 @@
 Communication_Toolbox
 
-Last Updated: 02/19/25
+Last Updated: 06/15/25
 
-This is the code that CR and SF developed to calculate communication between PFC and AC as a function of prior information (i.e, often designated as OnlyPrior and OnlyPretone trials). More specifically, it takes oscillation (LFP) data held in the 00_DATA folder and calculates coherence, granger, and xcorr between significantly modulated channel pairs. Each directory (both code and data) should be amended with descriptions of what is held within. This document serves as a high level description of the code to put everything into context. 
+This is the code that CR and SF developed to calculate communication between PFC and AC as a function of prior information (i.e, often designated as OnlyPrior and OnlyPretone trials). More specifically, it takes oscillation (LFP) data held in the 00_DATA folder and calculates coherence, granger, and xcorr between significantly modulated channel pairs. Each directory (both code and data) are amended with descriptions of what is held within. This document serves as a high level description of the code to put everything into context. 
 
 Dependencies
 MATLAB 2020 or later
@@ -16,7 +16,7 @@ D:\03_Cohen_Lab\01_Top_Down_Coherence_Project\00_DATA
 
 This code begins to process the data after "LALITTA_Cut" step, where Lalitta took the raw tdt data, threw out incomplete trials, and aligned the data to specific EPOC (namely testToneOnset, preCueOnset, and movementOnset).
 
-See the \\00_DATA\01_Lalitta_Cut for more details, but basically all the code that cuts the raw like Lalitta is held in a PennBox that Yale established in late 2023
+See the \\00_DATA\01_Lalitta_Cut for more details, but basically all the code that cuts the raw like Lalitta can either be found in the PennBox that Yale established in late 2023 (see below) or zipped in the zz_Utilities directory
 
 https://www.dropbox.com/scl/fo/xb2cfxn1u0jddoojyzm3a/h?rlkey=hm9h36esn7k9dql652nzst5vm&dl=0 
 
@@ -31,30 +31,37 @@ Our fundamental unit of measurement is the LFP spectra. This step can visualize 
 03_Behavioral_Analysis 
 This step takes behavioral data than Nathan gave us and calculates the chronometric and psychometric curves for the monkey's performance. It also carries out ranksum test between the two conditions at each SNR level. 
 
-04_Coherence_and_Granger 
+04_Maris_Connectivity_Test
 
-If you came here looking to carry out the channel-pair wise version of the analysis, this is not the folder to you. This step carries out a non-parametric between conditions for granger and coherence. It was incorporated into a more comprehensive wrapper that calculates more connectivity metrics. It was retained within this folder architecture because it still collapses across all combinations of channel pairs within a layer grouping, and those chunks might be of value to someone. 
+The README file within this directory is particular non-descript because in order to understand our code, you need to basically go through this file line-by-line. It runs through all bands, and all significant channels (sometime shared channel pairs when appropriate), and calculates time x frequency matrix (aka spectrogram), xcorr, coherence, and granger, and accompanying null distributions. It generates values for every sig channel or sig channel pair resulting in several thousands of data individual data files. It also carries out the statistical test on both the coherence and granger spectra generating an array of p values. The statistics simply test if the two coherence/granger spectra are different as a function of prior condition. Statistical comparisons are generated using a computationally heavy monte carlo estimation (to account for differences in trials number between conditions), and takes several days to bootstrap all the null distributions
 
-05_Connectivity Uber
+05_Maris_Summary_Statistics 
 
-This is the scripts that do most of the heavy lifting. The README file within that directory is particular non-descript because in order to understand our code, you need to basically go through this file line-by-line. It runs through all bands, and all significant channels (sometime shared channel pairs when appropriate), and calculates time x frequency matrix (aka spectrogram), xcorr, coherence, and granger, and accompanying null distributions. It generates values for every sig channel or sig channel pair resulting in several thousands of data individual data files. It also carries out the statistical test on both the coherence and granger spectra generating an array of p values. The statistics simply test if the two coherence/granger spectra are different as a function of prior condition. 
+This folder is the working version of code that generates reportable summaries from the 04_Maris_Connectivity_Test. For Granger and Coherence, it plots the number of significant p-values per channel pair. When organized vertically this metric displays which PFC/AC channels differentially interact as a function prior. SF built code that identify the (first, second, and third) layers groupings that change their communication as a function of prior. Conceptually, this step takes the place of how we originally grouped channels together (superficial, upper-mid, low-mid, and deep). Now we do not have to guess, the current analysis is 'blind' to predetermined laminar demarcation. We identify that channel with  +/- 2 channels, exclude that range, and carry out that process 2 more times. If there are two channels tied for the max, their ranges take up the first and second slots. This code has also been outfitted to calculate cross correlation and phase slope index shared channel pairs
 
-06_Maris_Summary_Statistics 
+06_Epoch_Analysis
 
-This folder is the working version of code that generates reportable summaries from the 05_Connectivity_Uber step. For Granger and Coherence, it plots the number of significant p-values per channel pair. When organized vertically this metric displays which PFC/AC channels differentially interact as a function prior. SF built code that identify the (first, second, and third) layers groupings that change their communication as a function of prior. Conceptually, this step takes the place of how we originally grouped channels together (superficial, upper-mid, low-mid, and deep). Now we do not have to guess, the current analysis is 'blind' to predetermined laminar demarcation. We identify that channel with  +/- 2 channels, exclude that range, and carry out that process 2 more times. If there are two channels tied for the max, their ranges take up the first and second slots. 
+Contains code that compares PFC-AC connectivity between different task epochs (PreCueOnset and TestToneOnset). PSI and coherence are calculated following trial subsampling, and compared with non-parametric statistical testing. PSI and Coherence are visualized both spatially (i.e. by Channel-Pair via heat map) or non-spatially (i.e., by condition via histogram). 
 
-This code has also been outfitted to calculate cross correlation and phase slope index shared channel pairs
+07_Expectation_Analysis
 
-07_Directed_Connectivity_Summary_Statistics
+Same logic as 06_Epoch_Analysis, hard coded data selection code for convenience. Compares PFC-AC connectivity between OnlyPrior (informative LED, followed by silence) and OnlyPretone (neutral LED, followed by pretones) trials.
 
-The next step is taking the first, second, and third layer groupings, and seeing which condition(s) varies as a function of the prior condition. To do this, we calculate xcorr for all channels 5 x 5 layer grouping for each condition. This enables us to add a time and an (E/I) descriptor when describing the communication between PFC and AC. We identify the max peak above the null distribution, and develop a histogram with the peak xcorr values for each condition. We then run a chi-squared to test whether those two histograms are different. A pvalue less than .05 suggests that the xcorr max values are sig different between the two conditions. The lag value of max from the two conditions indicates how the two cortical areas are modulated by prior information. 
+08_Congruency_Analysis
 
-This folder also contains a PSI analysis that does not requires a Maris test to find the 5x5 hotspot. Basically, this is just plotting code, that takes the PSI spectra and plot them on the spatial scale. 
+Under construction, but also leverages the same logic as 06_Epoch_anslysis and 07_Expectation_Analysis. Compares PFC-AC connectivity between congruent and noncongruent trials.  
 
+zz_Directed_Connectivity_Summary_Statistics
+This directory holds a stripped down wrapper that is used in the Epoch, Expectation, and Congruency Analysis. This is useful if you want to session-wise do a new analysis on preprocessed data. 
+
+zz_XCorr_Analysis
+Calculates cross-correlations between PFC and AC time series as a function of expectation or condition. Takes the first, second, and third layer groupings, and seeing which condition(s) varies as a function of the prior condition. To do this, we calculate xcorr for all channels 5 x 5 layer grouping for each condition. This enables us to add a time and an (E/I) descriptor when describing the communication between PFC and AC. We identify the max peak above the null distribution, and develop a histogram with the peak xcorr values for each condition. We then run a chi-squared to test whether those two histograms are different. A pvalue less than .05 suggests that the xcorr max values are sig different between the two conditions. The lag value of max from the two conditions indicates how the two cortical areas are modulated by prior information. 
 
 zz_Utilities 
 
-Functions for checking the status or progress of any scripts that are left to run over several days. 
+Functions for carrying out stuff not related to graphs in the paper...
+Calculating STRF for each recording location
+Checking the status or progress of any scripts that are left to run over several days.  
 
 
 

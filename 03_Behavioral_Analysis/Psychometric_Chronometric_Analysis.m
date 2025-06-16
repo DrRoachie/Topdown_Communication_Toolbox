@@ -10,8 +10,8 @@
 
 %% Define data
 
-Animal      = 'MrCassius';          % 'MrCassius' or 'MrM'
-Epoch       = 'testToneOnset';      % 'testToneOnset' or 'preCueOnset' 
+Animal      = 'MrM';              % 'MrCassius' or 'MrM'
+Epoch       = 'testToneOnset';    % 'testToneOnset' or 'preCueOnset' 
 Condition   = 'prior';            % 'prior' or 'pretone'
 
 datadir     = fullfile('D:\04_Epoc_Cut', Animal, extractBefore(Epoch, 'Onset'));
@@ -84,39 +84,42 @@ CI_upper           = mean_proportion_H + 1.96 * standard_error;
 figure; hold on;
 
 % Define light colors for each prior condition
-light_blue       = [0.68, 0.85, 0.9];  % Light Blue
-light_green      = [0.56, 0.93, 0.56]; % Light Green
-dandelion_yellow = [0.94, 0.88, 0.19]; % Dandelion Yellow
+gray_blue       = [0.00, 0.45, 0.70];  % Light Blue
+gray_green      = [0.00, 0.60, 0.50]; % Light Green
+gray_yellow     = [0.55, 0.55, 0.00]; % Dandelion Yellow
 
 % Calculate error bars using confidence intervals
 CI_error_H = mean_proportion_H - CI_lower; % Upper and lower errors are symmetric
 
 % Plot for High Prior (Light Blue)
 h = errorbar(SNR_list, mean_proportion_H(1,:), CI_error_H(1,:), CI_error_H(1,:), ...
-    '.-', 'Color', light_blue, 'LineWidth', 4);
+    '.-', 'Color', gray_blue, 'LineWidth', 3);
 h.CapSize = 0;
 
 % Plot for Low Prior (Light Green)
 l = errorbar(SNR_list, mean_proportion_H(2,:), CI_error_H(2,:), CI_error_H(2,:), ...
-    '.-', 'Color', light_green, 'LineWidth', 4);
+    '.-', 'Color', gray_green, 'LineWidth', 3);
 l.CapSize = 0;
 
 % Check for Neutral Prior condition (Dandelion Yellow)
 if strcmp(Condition, 'prior')
     n = errorbar(SNR_list, mean_proportion_H(3,:), CI_error_H(3,:), CI_error_H(3,:), ...
-        '.-', 'Color', dandelion_yellow, 'LineWidth', 4);
+        '.-', 'Color', gray_yellow, 'LineWidth', 3);
     n.CapSize = 0;
 end
+
+axis square;                  % Make the plot area square
+set(gcf, 'Position', [100, 100, 600, 600]);  % Set figure window size (in pixels)
 
 % Customize axes and labels
 ylim([0, 1]);
 set(gca, 'XTick', [-2, -1, 0, 1, 2]);  % Set specific x-tick positions
 
 % Set y-axis ticks to 0, 0.5, and 1 with font size 24
-set(gca, 'YTick', [0 0.5 1], 'YTickLabel', {'0', '0.5', '1'}, 'FontSize', 24);
+%set(gca, 'YTick', [0 0.5 1], 'YTickLabel', {'0', '0.5', '1'}, 'FontSize', 24);
 
 
-% Show specific x-axis tick marks for 'pretone' condition
+%Show specific x-axis tick marks for 'pretone' condition
 if strcmp(Condition, 'pretone')
     set(gca, 'XTick', [-2, -1, 0, 1, 2]);  % Set specific x-tick positions
 else
@@ -125,10 +128,10 @@ else
     % set(gca, 'XTickLabel', []);  % Remove labels
 end
 
-% Set font to Arial for the entire plot
+%Set font to Arial for the entire plot
 set(gca, 'FontName', 'Arial');
 
-% No legend display
+
 
 
 
@@ -207,15 +210,15 @@ end
 
 % calculate mean reaction time and standard error
 mean_RTs    = nanmean(total_RTs,3);
-%std_RTs     = nanstd(total_RTs, 0, 3) / sqrt(size(total_RTs, 3));
-std_RTs     = nanstd(total_RTs, 0, 3);
+standard_error_RTs     = nanstd(total_RTs, 0, 3) / sqrt(size(total_RTs, 3));
 
 % plot chronometric curve
 figure; hold on;
 
-light_blue = [0.68, 0.85, 0.9];  % Light Blue
-light_green = [0.56, 0.93, 0.56];  % Light Green
-dandelion_yellow = [0.94, 0.88, 0.19];  % Dandelion Yellow
+% Define light colors for each prior condition
+gray_blue       = [0.00, 0.45, 0.70];  % Light Blue
+gray_green      = [0.00, 0.60, 0.50]; % Light Green
+gray_yellow     = [0.55, 0.55, 0.00]; % Dandelion Yellow
 
 % Points to connect - first half and second half
 first_half       = [1, 2, 3, 4];
@@ -225,12 +228,12 @@ first_and_second = [first_half, second_half];
 % Plot first and second half
 if strcmp(Condition, 'prior')
     % Scatter plot
-    l = errorbar(SNR_list(first_and_second), mean_RTs(1, first_and_second), std_RTs(1, first_and_second), ...
-        '.', 'Color', light_green, 'LineWidth', 4);  % Low Prior (Light Green)
-    n = errorbar(SNR_list(first_and_second), mean_RTs(2, first_and_second), std_RTs(2, first_and_second), ...
-        '.', 'Color', dandelion_yellow, 'LineWidth', 4);  % Neutral Prior (Dandelion Yellow)
-    h = errorbar(SNR_list(first_and_second), mean_RTs(3, first_and_second), std_RTs(3, first_and_second), ...
-        '.', 'Color', light_blue, 'LineWidth', 4);  % High Prior (Light Blue)
+    l = errorbar(SNR_list(first_and_second), mean_RTs(1, first_and_second), standard_error_RTs(1, first_and_second), ...
+        '.', 'Color', gray_green, 'LineWidth', 3);  % Low Prior (Light Green)
+    n = errorbar(SNR_list(first_and_second), mean_RTs(2, first_and_second), standard_error_RTs(2, first_and_second), ...
+        '.', 'Color', gray_yellow, 'LineWidth', 3);  % Neutral Prior (Dandelion Yellow)
+    h = errorbar(SNR_list(first_and_second), mean_RTs(3, first_and_second), standard_error_RTs(3, first_and_second), ...
+        '.', 'Color', gray_blue, 'LineWidth', 3);  % High Prior (Light Blue)
 
     % Remove error bar caps
     l.CapSize = 0;
@@ -238,54 +241,67 @@ if strcmp(Condition, 'prior')
     h.CapSize = 0;
 
     % Connecting lines
-    plot(SNR_list(first_half), mean_RTs(1, first_half), '-', 'Color', light_green, 'LineWidth', 4);  % Low Prior
-    plot(SNR_list(second_half), mean_RTs(1, second_half), '-', 'Color', light_green, 'LineWidth', 4);
+    plot(SNR_list(first_half), mean_RTs(1, first_half), '-', 'Color', gray_green, 'LineWidth', 3);  % Low Prior
+    plot(SNR_list(second_half), mean_RTs(1, second_half), '-', 'Color', gray_green, 'LineWidth', 3);
 
-    plot(SNR_list(first_half), mean_RTs(2, first_half), '-', 'Color', dandelion_yellow, 'LineWidth', 4);  % Neutral Prior
-    plot(SNR_list(second_half), mean_RTs(2, second_half), '-', 'Color', dandelion_yellow, 'LineWidth', 4);
+    plot(SNR_list(first_half), mean_RTs(2, first_half), '-', 'Color', gray_yellow, 'LineWidth', 3);  % Neutral Prior
+    plot(SNR_list(second_half), mean_RTs(2, second_half), '-', 'Color', gray_yellow, 'LineWidth', 3);
 
-    plot(SNR_list(first_half), mean_RTs(3, first_half), '-', 'Color', light_blue, 'LineWidth', 4);  % High Prior
-    plot(SNR_list(second_half), mean_RTs(3, second_half), '-', 'Color', light_blue, 'LineWidth', 4);
+    plot(SNR_list(first_half), mean_RTs(3, first_half), '-', 'Color', gray_blue, 'LineWidth', 3);  % High Prior
+    plot(SNR_list(second_half), mean_RTs(3, second_half), '-', 'Color', gray_blue, 'LineWidth', 3);
     set(gca, 'XTick', [-2, -1, 0, 1, 2]);  % Set specific x-tick positions
+
+    axis square;                  % Make the plot area square
+    set(gcf, 'Position', [100, 100, 600, 600]);  % Set figure window size (in pixels)
 
 elseif strcmp(Condition, 'pretone')
     % Scatter plot for pretone condition
-    h = errorbar(SNR_list(first_and_second), mean_RTs(1, first_and_second), std_RTs(1, first_and_second), ...
-        '.', 'Color', light_blue, 'LineWidth', 4);  % High Pretone
-    l = errorbar(SNR_list(first_and_second), mean_RTs(2, first_and_second), std_RTs(2, first_and_second), ...
-        '.', 'Color', light_green, 'LineWidth', 4);  % Low Pretone
+    h = errorbar(SNR_list(first_and_second), mean_RTs(1, first_and_second), standard_error_RTs(1, first_and_second), ...
+        '.', 'Color', gray_blue, 'LineWidth', 3);  % High Pretone
+    l = errorbar(SNR_list(first_and_second), mean_RTs(2, first_and_second), standard_error_RTs(2, first_and_second), ...
+        '.', 'Color', gray_green, 'LineWidth', 3);  % Low Pretone
 
     % Remove error bar caps
     h.CapSize = 0;
     l.CapSize = 0;
 
     % Connecting lines
-    plot(SNR_list(first_half), mean_RTs(1, first_half), '-', 'Color', light_blue, 'LineWidth', 4);  % High Pretone
-    plot(SNR_list(second_half), mean_RTs(1, second_half), '-', 'Color', light_blue, 'LineWidth', 4);
+    plot(SNR_list(first_half), mean_RTs(1, first_half), '-', 'Color', gray_blue, 'LineWidth', 3);  % High Pretone
+    plot(SNR_list(second_half), mean_RTs(1, second_half), '-', 'Color', gray_blue, 'LineWidth', 3);
 
-    plot(SNR_list(first_half), mean_RTs(2, first_half), '-', 'Color', light_green, 'LineWidth', 4);  % Low Pretone
-    plot(SNR_list(second_half), mean_RTs(2, second_half), '-', 'Color', light_green, 'LineWidth', 4);
+    plot(SNR_list(first_half), mean_RTs(2, first_half), '-', 'Color', gray_green, 'LineWidth', 3);  % Low Pretone
+    plot(SNR_list(second_half), mean_RTs(2, second_half), '-', 'Color', gray_green, 'LineWidth', 3);
     set(gca, 'XTick', [-2, -1, 0, 1, 2]);  % Set specific x-tick positions
 
 end
 
+axis square;                  % Make the plot area square
+set(gcf, 'Position', [100, 100, 600, 600]);  % Set figure window size (in pixels)
+
+ylim([400, 1200]);
 % Customize axes and labels
-min_y = min(mean_RTs(:));  % Minimum y-value from the data
-max_y = max(mean_RTs(:));  % Maximum y-value from the data
-mid_y = (min_y + max_y) / 2;  % Midpoint of the y-range
+% min_y = min(mean_RTs(:));  % Minimum y-value from the data
+% max_y = max(mean_RTs(:));  % Maximum y-value from the data
+% mid_y = (min_y + max_y) / 2;  % Midpoint of the y-range
+% 
+% % Round min_y down to the nearest increment of 100, and mid_y/max_y up
+% min_y_rounded = floor(min_y / 100) * 100;
+% mid_y_rounded = ceil(mid_y / 100) * 100;
+% max_y_rounded = ceil(max_y / 100) * 100 + 100;  % Add 100 to the rounded max_y
+% 
+% ylim([min_y_rounded, max_y_rounded]);  % Set y-axis limits based on rounded values
+% 
+% axis square;                  % Make the plot area square
+% set(gcf, 'Position', [100, 100, 600, 600]);  % Set figure window size (in pixels)
+% 
+% % Set y-axis ticks to rounded minimum, midpoint, and maximum, with a font size of 24
+% set(gca, 'YTick', [min_y_rounded, mid_y_rounded, max_y_rounded], ...
+%     'YTickLabel', {num2str(min_y_rounded), num2str(mid_y_rounded), num2str(max_y_rounded)}, 'FontSize', 24);
 
-% Round min_y down to the nearest increment of 100, and mid_y/max_y up
-min_y_rounded = floor(min_y / 100) * 100;
-mid_y_rounded = ceil(mid_y / 100) * 100;
-max_y_rounded = ceil(max_y / 100) * 100 + 100;  % Add 100 to the rounded max_y
+axis square;                  % Make the plot area square
+set(gcf, 'Position', [100, 100, 600, 600]);  % Set figure window size (in pixels)
 
-ylim([min_y_rounded, max_y_rounded]);  % Set y-axis limits based on rounded values
-
-% Set y-axis ticks to rounded minimum, midpoint, and maximum, with a font size of 24
-set(gca, 'YTick', [min_y_rounded, mid_y_rounded, max_y_rounded], ...
-    'YTickLabel', {num2str(min_y_rounded), num2str(mid_y_rounded), num2str(max_y_rounded)}, 'FontSize', 24);
-
-% Show specific x-axis tick marks for 'pretone' condition
+%Show specific x-axis tick marks for 'pretone' condition
 if strcmp(Condition, 'pretone')
     set(gca, 'XTick', [-2, -1, 0, 1, 2]);  % Set specific x-tick positions
 else
@@ -297,4 +313,3 @@ end
 % Set font to Arial for the entire plot
 set(gca, 'FontName', 'Arial');
 
-% Remove legend

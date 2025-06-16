@@ -1,10 +1,9 @@
 
 07_Behavioral_Analysis
 
-Last updated: 07/29/2024
+Last updated: 06/16/2025
 
 This is code developed by SF to generate and analyze psychometric and chronometric curves. Both functions run animal-wise and condition-wise, meaning for 2 animals and 2 conditions each function must run 4 times. More detailed instruction about running a full Wilcoxon Rank-Sum Test can be found in the Psycho_Chrono_Wilcoxon_Test.m script.
-
 
 Psychometric_Chronometric_Analysis.m
 

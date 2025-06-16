@@ -5,7 +5,7 @@ Frequency_Band    = 'theta';
 Behavior          = 'correct';
 % Congruency        = 'congruent';
 SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000];  % Options: any combination of  -11/6, -5/3, -1.5000, -1.2500, 0, 1.2500, 1.5000, 5/3, 11/6; 
-animals           = {'MrCassius', 'MrM'};                                                     % Options: 'MrCassius' and/or 'MrM'
+animals           = {'MrCassius'};                                                     % Options: 'MrCassius' and/or 'MrM'
 rootdir           = 'C:\Users\Corey Roach\Documents\00_DATA\Congruency_Analysis';                                 
 sessions          = dir(fullfile(rootdir, '19*'));
 

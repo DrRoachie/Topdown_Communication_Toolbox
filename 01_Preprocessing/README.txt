@@ -1,6 +1,13 @@
 01_Preprocessing 
 
-Last Updated: 03/03/25
+Last Updated: 06/16/25
+
+
+AdjustSampleInfo.m: following time series truncation in the preprocessed data  files, this script adjusts the sampleinfo field. SampleInfo helps fieldtrip retain trial identity. CR is not sure what the field is used for exactly considering our trials should be considered independent and non-continuous. 
+
+ChoppingData.m:truncates the time series, so that field trip only processes a selected epoch. Importantly this strategy reduces the minimum spectral resolution, so theta and alpha will have some overlap on the edges. 
+
+MoveOnset_Cut: This script is under construction, but is supposed to cut moveOnset data files backwards from joystick onset to encapsulate the decision epoch. 
 
 PreprocessLFP_ft: This is a wrapper or uber file developed by Taku that runs all preprocessing steps on selected sessions. This code takes Lalitta's cut epoch data, and runs 'FormatLFP_ft_v2.m'. That function "baseline corrects" (code: basecorrectLFP) to adjust for an offset in the time series inserted by the Synapse (TDT, acquisition software). The data is also referenced by passing the data through a spatial derivation (code: bipolarLFP). Finally, the data is reformatted for future use in field trip functions (code: downsample_bdLFP_v2) and downsampled to 1000 Hz. 
 
