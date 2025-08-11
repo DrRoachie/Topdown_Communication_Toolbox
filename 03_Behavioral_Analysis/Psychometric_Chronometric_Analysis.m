@@ -12,8 +12,7 @@
 
 Animal      = 'MrM';              % 'MrCassius' or 'MrM'
 Epoch       = 'testToneOnset';    % 'testToneOnset' or 'preCueOnset' 
-Condition   = 'prior';            % 'prior' or 'pretone'
-
+Condition   = 'pretone';            % 'prior' or 'pretone'
 datadir     = fullfile('D:\04_Epoc_Cut', Animal, extractBefore(Epoch, 'Onset'));
 ddmdir      = 'D:\03_DDM_Decision_Times';
 ddm_fName   = '20210511_audiDeci_monkeyBeh_DT_13-Jun-2023';
@@ -130,9 +129,6 @@ end
 
 %Set font to Arial for the entire plot
 set(gca, 'FontName', 'Arial');
-
-
-
 
 
 %% generate chronometric curve
@@ -279,25 +275,6 @@ axis square;                  % Make the plot area square
 set(gcf, 'Position', [100, 100, 600, 600]);  % Set figure window size (in pixels)
 
 ylim([400, 1200]);
-% Customize axes and labels
-% min_y = min(mean_RTs(:));  % Minimum y-value from the data
-% max_y = max(mean_RTs(:));  % Maximum y-value from the data
-% mid_y = (min_y + max_y) / 2;  % Midpoint of the y-range
-% 
-% % Round min_y down to the nearest increment of 100, and mid_y/max_y up
-% min_y_rounded = floor(min_y / 100) * 100;
-% mid_y_rounded = ceil(mid_y / 100) * 100;
-% max_y_rounded = ceil(max_y / 100) * 100 + 100;  % Add 100 to the rounded max_y
-% 
-% ylim([min_y_rounded, max_y_rounded]);  % Set y-axis limits based on rounded values
-% 
-% axis square;                  % Make the plot area square
-% set(gcf, 'Position', [100, 100, 600, 600]);  % Set figure window size (in pixels)
-% 
-% % Set y-axis ticks to rounded minimum, midpoint, and maximum, with a font size of 24
-% set(gca, 'YTick', [min_y_rounded, mid_y_rounded, max_y_rounded], ...
-%     'YTickLabel', {num2str(min_y_rounded), num2str(mid_y_rounded), num2str(max_y_rounded)}, 'FontSize', 24);
-
 axis square;                  % Make the plot area square
 set(gcf, 'Position', [100, 100, 600, 600]);  % Set figure window size (in pixels)
 
@@ -313,3 +290,349 @@ end
 % Set font to Arial for the entire plot
 set(gca, 'FontName', 'Arial');
 
+%% Binomial Generalized Linear Model with Logit Function to influence of LED on decision behavior and reaction time
+
+if strcmp(Condition, 'prior')
+
+sessions    = dir(fullfile(datadir, '19*'));
+
+% Initialize storage
+all_choice = [];
+all_LED    = {};
+all_SNR    = [];
+all_Session = [];
+
+for k = 1:length(sessions)
+    % Load session data
+    RecDate = sessions(k).name;
+    fName   = strcat(Animal,'-',RecDate,'_bdLFP_',Epoch,'_ft');
+    load(fullfile(datadir, RecDate, fName), 'SNR', 'prior', 'choice');
+    
+    % Skip bad sessions if needed
+    if isempty(choice)
+        continue
+    end
+
+    % Prepare LED label
+    prior_labels = cell(size(prior));
+    prior_labels(strcmp(prior, 'H')) = {'Blue'};
+    prior_labels(strcmp(prior, 'L')) = {'Green'};
+    prior_labels(strcmp(prior, 'N')) = {'Yellow'};
+
+    % Store
+    all_choice   = [all_choice; double(choice == 'H')];  % Convert to 1=High, 0=Low
+    all_LED      = [all_LED; prior_labels(:)];
+    all_SNR      = [all_SNR; SNR(:)];
+    all_Session  = [all_Session; repmat(k, length(SNR), 1)];
+end
+
+% Create table
+T = table(all_choice, categorical(all_LED), all_SNR, categorical(all_Session), ...
+          'VariableNames', {'Choice','LED','SNR','Session'});
+% Set Yellow as reference level
+LED_cat = categorical(all_LED);
+LED_cat = reordercats(LED_cat, {'Yellow', 'Blue', 'Green'});
+
+% Create table with new categorical ordering
+T = table(all_choice, LED_cat, all_SNR, categorical(all_Session), ...
+          'VariableNames', {'Choice','LED','SNR','Session'});
+
+% Split data
+high_idx = T.SNR > 0;   % High target trials
+low_idx  = T.SNR < 0;   % Low target trials
+
+T_high = T(high_idx, :);
+T_low  = T(low_idx, :);
+
+% Fit separate models
+glme_high = fitglme(T_high, 'Choice ~ LED * SNR + (1|Session)', ...
+                    'Distribution','Binomial','Link','logit');
+
+glme_low = fitglme(T_low, 'Choice ~ LED * SNR + (1|Session)', ...
+                   'Distribution','Binomial','Link','logit');
+
+disp(glme_high);
+disp(glme_low);
+
+% Reaction Time Analysis: Linear Mixed-Effects Model (LMM)
+
+% Exclude trials where SNR == 0
+DDM_table = DDM_table(DDM_table.SNR ~= 0, :);
+
+% Add TargetType variable based on SNR sign
+DDM_table.TargetType = repmat({'HighTarget'}, height(DDM_table), 1);
+DDM_table.TargetType(DDM_table.SNR < 0) = {'LowTarget'};
+DDM_table.TargetType = categorical(DDM_table.TargetType);
+
+% Map LED labels based on prior values (0 = Yellow, 2 = Blue, -2 = Green)
+LED_labels = cell(size(DDM_table.prior));
+LED_labels(DDM_table.prior == 0) = {'Yellow'};
+LED_labels(DDM_table.prior == 2) = {'Blue'};
+LED_labels(DDM_table.prior == -2) = {'Green'};
+DDM_table.LED = categorical(LED_labels);
+
+% Keep only relevant variables
+RT_table = DDM_table(:, {'RT','LED','SNR','TargetType','session'});
+RT_table.Session = categorical(RT_table.session);
+
+% Set reference levels
+RT_table.LED = reordercats(RT_table.LED, {'Yellow','Blue','Green'});
+RT_table.TargetType = reordercats(RT_table.TargetType, {'LowTarget','HighTarget'});
+
+% Fit Linear Mixed Model: RT ~ LED * TargetType + (1|Session)
+lme_RT = fitlme(RT_table, 'RT ~ LED * TargetType + (1|Session)');
+
+% Display model summary
+disp(lme_RT);
+
+% Optional: ANOVA to test interaction significance
+anova_RT = anova(lme_RT);
+disp(anova_RT);
+
+% Optional: Plot Marginal Means (Estimated RTs)
+[predTable,CI] = predict(lme_RT);
+
+end
+
+%% Pretone Influence on Choice: Binomial GLMM with Logit Link
+
+sessions = dir(fullfile(datadir, '19*'));
+
+% Initialize storage
+all_choice  = [];
+all_Pretone = {}; 
+all_SNR     = [];
+all_Session = [];
+
+for k = 1:length(sessions)
+    % Load session data
+    RecDate = sessions(k).name;
+    fName   = strcat(Animal,'-',RecDate,'_bdLFP_',Epoch,'_ft');
+    
+    if strcmp(Condition, 'pretone')
+        load(fullfile(datadir, RecDate, fName), 'SNR', 'pretone', 'choice');
+        prior = pretone; % rename for consistency
+    else
+        error('This code is for pretone condition only.');
+    end
+
+    % Store everything first (do not exclude yet)
+    all_choice  = [all_choice; double(choice == 'H')];
+    all_Pretone = [all_Pretone; cellstr(prior(:))];
+    all_SNR     = [all_SNR; SNR(:)];
+    all_Session = [all_Session; repmat(k, length(SNR), 1)];
+end
+
+% >>> Global exclusion of 'N' trials after pooling
+valid_idx = ~strcmp(all_Pretone, 'N');
+all_choice  = all_choice(valid_idx);
+all_Pretone = all_Pretone(valid_idx);
+all_SNR     = all_SNR(valid_idx);
+all_Session = all_Session(valid_idx);
+
+% Create table
+T = table(all_choice, categorical(all_Pretone), all_SNR, categorical(all_Session), ...
+          'VariableNames', {'Choice','Pretone','SNR','Session'});
+
+% Set 'L' as reference
+T.Pretone = reordercats(T.Pretone, {'L','H'});
+
+
+
+%% Split into High and Low target trials
+T_highPretone = T(T.SNR > 0, :);
+T_lowPretone  = T(T.SNR < 0, :);
+
+% Fit GLMM for High Target trials
+glme_highPretone = fitglme(T_highPretone, ...
+    'Choice ~ Pretone * SNR + (1|Session)', ...
+    'Distribution','Binomial','Link','logit');
+
+disp(glme_highPretone);
+
+% Fit GLMM for Low Target trials
+glme_lowPretone = fitglme(T_lowPretone, ...
+    'Choice ~ Pretone * SNR + (1|Session)', ...
+    'Distribution','Binomial','Link','logit');
+
+disp(glme_lowPretone);
+
+
+%% Pretone Influence on Reaction Time: Linear Mixed-Effects Model (LMM)
+
+% Load DDM table
+DDM_table = readtable(fullfile(ddmdir, ddm_fName));
+
+% Filter for correct subject, pretone condition, and correct trials
+DDM_table = DDM_table(strcmp(DDM_table.subject, Animal2) & ...
+                      strcmp(DDM_table.ttype, 'pretone_pLH') & ...
+                      DDM_table.success == 1, :);
+
+% Exclude SNR == 0 trials
+DDM_table = DDM_table(DDM_table.SNR ~= 0, :);
+
+% Add TargetType based on SNR sign
+DDM_table.TargetType = repmat({'HighTarget'}, height(DDM_table), 1);
+DDM_table.TargetType(DDM_table.SNR < 0) = {'LowTarget'};
+DDM_table.TargetType = categorical(DDM_table.TargetType);
+
+% Map Pretone triplet codes ('HHH', 'LLL') to 'H' and 'L'
+Pretone_labels = cell(size(DDM_table.ptC));
+Pretone_labels(strcmp(DDM_table.ptC, 'HHH')) = {'H'};
+Pretone_labels(strcmp(DDM_table.ptC, 'LLL')) = {'L'};
+DDM_table.Pretone = categorical(Pretone_labels);
+
+% Remove rows with missing or empty pretone labels (safety check)
+DDM_table = DDM_table(~cellfun(@isempty, Pretone_labels), :);
+
+% Build Reaction Time analysis table
+RT_table = DDM_table(:, {'RT', 'Pretone', 'TargetType', 'session'});
+RT_table.Session = categorical(RT_table.session);
+
+% Set reference levels
+RT_table.Pretone = reordercats(RT_table.Pretone, {'L', 'H'});
+RT_table.TargetType = reordercats(RT_table.TargetType, {'LowTarget', 'HighTarget'});
+
+%% Fit Linear Mixed-Effects Model
+lme_pretoneRT = fitlme(RT_table, 'RT ~ Pretone * TargetType + (1|Session)');
+
+% Display model summary
+disp(lme_pretoneRT);
+
+% ANOVA for significance of main effects and interaction
+anova_pretoneRT = anova(lme_pretoneRT);
+disp(anova_pretoneRT);
+
+%% Optional: Predict Marginal Means (if you’d like plots later)
+[predTable, CI] = predict(lme_pretoneRT);
+
+%% SNR-wise Chi-Squared Test 
+
+% Assumes you already have these arrays: all_choice, all_Pretone, all_SNR
+% all_choice: vector of binary values (1 = High choice, 0 = Low)
+% all_Pretone: cell array of 'H' or 'L' pretone values
+% all_SNR: vector of SNR values
+
+% Assumes: all_choice (0/1), all_Pretone ('H'/'L'), all_SNR (numeric)
+
+SNR_list = unique(all_SNR);
+p_values = nan(size(SNR_list));
+chi2_stats = nan(size(SNR_list));
+
+fprintf('SNR\tChi2\tp-value\n');
+fprintf('---------------------------\n');
+
+for i = 1:length(SNR_list)
+    snr_val = SNR_list(i);
+    
+    idx = all_SNR == snr_val;
+    choices = all_choice(idx);
+    pretones = all_Pretone(idx);
+    
+    % Build contingency table: rows = Pretone, columns = Choice
+    [tbl,~,~,labels] = crosstab(pretones, choices);
+    
+    % Run chi-squared test of independence
+    [chi2stat, p] = chi2cont(tbl);
+    
+    % Store and display
+    p_values(i) = p;
+    chi2_stats(i) = chi2stat;
+    fprintf('%d\t%.2f\t%.4f\n', snr_val, chi2stat, p);
+end
+
+%%
+% Sort p-values in ascending order
+[p_sorted, sort_idx] = sort(p_values);
+n = length(p_sorted);
+
+% Apply Benjamini-Hochberg correction
+fdr_corrected = p_sorted .* n ./ (1:n);  % BH formula: p * n / rank
+fdr_corrected = min(fdr_corrected, 1);   % Cap at 1
+
+% Enforce monotonicity (non-decreasing correction)
+for i = n-1:-1:1
+    fdr_corrected(i) = min(fdr_corrected(i), fdr_corrected(i+1));
+end
+
+% Reorder to match original SNR order
+fdr_corrected_pvals = nan(size(p_values));
+fdr_corrected_pvals(sort_idx) = fdr_corrected;
+
+% Display results
+fprintf('\nSNR\tChi2\tp-value\tFDR-corrected\n');
+fprintf('---------------------------------------------\n');
+for i = 1:length(SNR_list)
+    fprintf('%.6f\t%.2f\t%.4f\t%.4f\n', ...
+        SNR_list(i), ...
+        chi2_stats(i), ...
+        p_values(i), ...
+        fdr_corrected_pvals(i));
+end
+
+
+%%
+
+% Unique SNR values
+SNR_list = unique(all_SNR);
+p_values_RT = nan(size(SNR_list));
+chi2_stats_RT = nan(size(SNR_list));
+
+fprintf('SNR\tChi2\tp-value\n');
+fprintf('-----------------------------\n');
+
+for i = 1:length(SNR_list)
+    snr_val = SNR_list(i);
+
+    % Get trials at current SNR
+    idx = all_SNR == snr_val;
+    rt_vals = all_RT(idx);
+    pretone_vals = all_Pretone(idx);
+
+    % Skip if too few values
+    if sum(idx) < 10
+        continue
+    end
+
+    % Bin RTs as 'Fast' or 'Slow' based on median split
+    median_rt = median(rt_vals);
+    rt_bin = repmat("Slow", size(rt_vals));
+    rt_bin(rt_vals <= median_rt) = "Fast";
+
+    % Build contingency table (Pretone x RT bin)
+    [tbl,~,~,~] = crosstab(pretone_vals, rt_bin);
+
+    % Skip if not enough categories
+    if any(size(tbl) < 2)
+        continue
+    end
+
+    % Chi-squared test
+    [chi2stat, p] = chi2cont(tbl);
+
+    % Store and print results
+    chi2_stats_RT(i) = chi2stat;
+    p_values_RT(i) = p;
+
+    fprintf('%.2f\t%.2f\t%.4f\n', snr_val, chi2stat, p);
+end
+
+
+%%
+function [chi2stat, p] = chi2cont(tbl)
+% chi2cont - Chi-squared test of independence for contingency table
+    expected = sum(tbl, 2) * sum(tbl, 1) / sum(tbl(:));
+    chi2stat = sum((tbl - expected).^2 ./ expected, 'all');
+    df = (size(tbl,1)-1) * (size(tbl,2)-1);
+    p = 1 - chi2cdf(chi2stat, df);
+end
+
+%%
+
+function out = ternary(condition, true_val, false_val)
+    if condition
+        out = true_val;
+    else
+        out = false_val;
+    end
+end

@@ -2,7 +2,7 @@
 %% Expectation_Connectivity_Test
 
 % This code tests how connectivity between PFC and AC changes as a function
-% of expectation. Specifically, this code tests how the PFC-AC connectivity
+% of epoch, expectation, and congruence. Specifically, this code tests how the PFC-AC connectivity
 % during the testTone epoch changes as a function of expectation. 
 % 
 % Expectation Condition 1: PriorOnly Trials (informative LED followed by
@@ -27,8 +27,12 @@
 % allows us to subtract the values between conditions which is useful for
 % assessing how the two conditions change across sessions. 
 
-%% Set parameters for the preCue Condition
+%% Set parameters for the testTone Condition
 
+Epoch             = 'testToneOnset';
+datadir_root      = '\\Kilosort\d\Top_Down_Coherence_Project\00_DATA\04b_Epoc_Cut';
+chandir_root      = '\\Kilosort\d\Top_Down_Coherence_Project\00_DATA\05b_Signficant_Channels_epoch_fullArray';
+savedir           = 'C:\Users\Corey Roach\Documents\00_DATA\205_07_28_PSI_Test';
 Frequency_Band    = 'theta';
 SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000];   % Options: any combination of  -11/6, -5/3, -1.5000, -1.2500, 0, 1.2500, 1.5000, 5/3, 11/6; 
 
@@ -41,8 +45,7 @@ SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000]; 
     % Because theta/alpha & beta have the chance to use different channels,
     % you have to make the code Frequency_Band dependent. 
 
-    if strcmp(Frequency_Band, 'theta') || strcmp(Frequency_Band, 'alpha') % theta and alpha have the same shared pairs according to LFP_spec_eval, so they can use the same set/
-
+   
         % session_info = {'MrCassius', '190330';
         %                 'MrCassius', '190404';
         %                 'MrCassius', '190413';
@@ -79,133 +82,149 @@ SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000]; 
         %                 'MrCassius', '190723';
         %                 'MrCassius', '190725';};
 
+                    session_info = {
+                            'MrCassius', '190330';
+                            'MrCassius', '190404';
+                            'MrCassius', '190413';
+                            'MrCassius', '190416';
+                            'MrCassius', '190418';
+                            'MrCassius', '190419';
+                            'MrCassius', '190421';
+                            'MrCassius', '190423';
+                            'MrCassius', '190515';
+                            'MrCassius', '190517';
+                            'MrCassius', '190531';
+                            'MrCassius', '190603';
+                            'MrCassius', '190605';
+                            'MrCassius', '190703';
+                            'MrCassius', '190711';
+                            'MrCassius', '190713';
+                            'MrCassius', '190720';
+                            'MrCassius', '190723';
+                            'MrCassius', '190725';};
+ 
 
-    session_info = {'MrCassius', '190330';
-                        'MrCassius', '190404';
-                        'MrCassius', '190413';
-                        'MrCassius', '190416';
-                        'MrM', '190417';
-                        'MrCassius', '190418';};
-             
+                    % session_info = {
+                    %             'MrM', '190417';
+                    %             'MrM', '190422';
+                    %             'MrM', '190425';
+                    %             'MrM', '190427';
+                    %             'MrM', '190502';
+                    %             'MrM', '190514';
+                    %             'MrM', '190525';
+                    %             'MrM', '190527';
+                    %             'MrM', '190530';
+                    %             'MrM', '190601';
+                    %             'MrM', '190604';
+                    %             'MrM', '190704';
+                    %             'MrM', '190709';
+                    %             'MrM', '190717';
+                    %             'MrM', '190719';
+                    %             'MrM', '190722';};
 
-     end
+        for rd = 1:length(session_info(:,1))
+
+                % Establish the subset of data that you want to process. 
+                Animal           = session_info{rd,1};                  % Options: 'MrCassius', 'MrM'; 
+                RecDate          = session_info{rd,2};                  % Options: 'YYMMDD'; 
+        
+                % Set directory and get a list of all files in the folder with the desired file name pattern.
+                datadir           = fullfile(datadir_root, Animal, Epoch, RecDate);                                 % epoch data, with the time chunk that you want isolated
+                chandir           = fullfile(chandir_root, Animal, Epoch, RecDate);     % the sig channels that are output LFP_Spectral_Analysis
+                sessions          = dir(fullfile(datadir,'*.mat')); % bad naming convention; only ever one session at a time
+                addpath(genpath(datadir));
+                addpath(genpath(chandir));
+        
+                % make save folders and directory
+                savedir = fullfile(savedir, RecDate, Animal);
+                if ~exist(savedir, 'dir')  % make folders if they don't exist already
+                   mkdir(savedir);
+                end   
+        
+        % —— Step 1: Load sig‑channel files and build channel‑pair lists ——
+        % — OnlyPrior —
+
+        if strcmp(Epoch,'testToneOnset') == 1
+            OnlyPrior_correct_SigChans_fn = sprintf('SigChannels_%s_testToneOnset_OnlyPrior_Correct_%s.mat', RecDate, Frequency_Band);
+            OnlyPrior_correct_files       = dir(fullfile(chandir, OnlyPrior_correct_SigChans_fn));
+            
+            if isempty(OnlyPrior_correct_files)
+                fprintf('Skipping %s %s: no OnlyPrior sig‑channel file.\n', Animal, RecDate);
+                continue;
+            end
+        end
+
+        if strcmp(Epoch,'preCueOnset') == 1
+            OnlyPrior_correct_SigChans_fn = sprintf('SigChannels_%s_preCueOnset_OnlyPrior_Correct_%s.mat', RecDate, Frequency_Band);
+            OnlyPrior_correct_files       = dir(fullfile(chandir, OnlyPrior_correct_SigChans_fn));
+            
+            if isempty(OnlyPrior_correct_files)
+                fprintf('Skipping %s %s: no OnlyPrior sig‑channel file.\n', Animal, RecDate);
+                continue;
+            end
+        end
 
 
-    % if strcmp(Frequency_Band, 'beta')
-    % 
-    %     % session_info = {'MrCassius', '190404';
-    %     %                 'MrCassius', '190413';
-    %     %                 'MrCassius', '190416';
-    %     %                 'MrCassius', '190418';
-    %     %                 'MrCassius', '190419';
-    %     %                 'MrM', '190422';
-    %     %                 'MrCassius', '190517';
-    %     %                 'MrM', '190525';
-    %     %                 'MrM', '190527';
-    %     %                 'MrM', '190601';
-    %     %                 'MrCassius', '190703';
-    %     %                 'MrCassius', '190713';
-    %     %                 'MrCassius', '190718';
-    %     %                 'MrM', '190719';
-    %     %                 'MrCassius', '190723';};
-    % 
-    % 
-    % 
-    %  end
-
-     for rd = 1:length(session_info(:,1))
-
-        % Establish the subset of data that you want to process. 
-        Animal           = session_info{rd,1};                  % Options: 'MrCassius', 'MrM'; 
-        RecDate          = session_info{rd,2};                  % Options: 'YYMMDD'; 
-
-        % Set directory and get a list of all files in the folder with the desired file name pattern.
-        datadir           = fullfile('D:\04_Epoc_Cut', Animal, 'testTone', RecDate);                                 % epoch data, with the time chunk that you want isolated
-        chandir           = fullfile('D:\05_Significant_Channels_epoch', Animal, 'testTone', RecDate);     % the sig channels that are output LFP_Spectral_Analysis
-        savedir           = 'C:\Users\Corey Roach\Documents\00_DATA\Expectation_Analysis';  % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
-
-        sessions = dir(fullfile(datadir,'*.mat')); % bad naming convention; only ever one session at a time
-        addpath(genpath(datadir));
-        addpath(genpath(chandir));
-
-        % make save folders and directory
-        savedir = fullfile(savedir, RecDate, Animal);
-        if ~exist(savedir, 'dir')  % make folders if they don't exist already
-           mkdir(savedir);
-        end   
-
-        % Get OnlyPrior Sig. Channels
-
-        OnlyPrior_correct_SigChans_fn = sprintf('SigChannels_%s_%s_%s_%s_%s.mat', RecDate, 'testToneOnset', 'OnlyPrior', 'Correct', Frequency_Band);
-        OnlyPrior_correct_files = dir(fullfile(chandir, OnlyPrior_correct_SigChans_fn));
-
-        if  isempty(OnlyPrior_correct_files)
-
-            % generate null output files if there are no sig. channels for Condition_1
-            % this is supposed to stop the code because there is no point continuing if there either of the conditions are empty
-
-            save_file_name = fullfile(savedir, sprintf('NULL_%s_%s_%s_%s_%s_%s_data.txt', RecDate, Animal, 'testToneOnset', 'OnlyPrior', 'Correct', Frequency_Band));
-            fid4 = fopen(save_file_name, 'w');
-            fclose('all');
-
-        else % get the labels for the PFC channels and AC channels for correct trials 
-
-        OnlyPrior_correct_SigChans = load(fullfile(chandir, OnlyPrior_correct_SigChans_fn), 'significant_channels');
+        % load & split
+        OnlyPrior_correct_SigChans          = load(fullfile(chandir, OnlyPrior_correct_SigChans_fn), 'significant_channels');
         OnlyPrior_correct_modifiedCellArray   = regexprep(OnlyPrior_correct_SigChans.significant_channels , '^(D1_|D2_|D3_|D4_)', '*');
 
         % Separate elements that start with *PFC and *AC
         OnlyPrior_correct_PFC_chans  =  OnlyPrior_correct_modifiedCellArray(startsWith(OnlyPrior_correct_modifiedCellArray, '*PFC'));
         OnlyPrior_correct_AC_chans   =  OnlyPrior_correct_modifiedCellArray(startsWith(OnlyPrior_correct_modifiedCellArray, '*AC'));
 
+
+        % — OnlyPretone —
+
+         if strcmp(Epoch,'testToneOnset') == 1
+            OnlyPretone_correct_SigChans_fn = sprintf('SigChannels_%s_testToneOnset_OnlyPretone_Correct_%s.mat', RecDate, Frequency_Band);
+            OnlyPretone_correct_files       = dir(fullfile(chandir, OnlyPretone_correct_SigChans_fn));
+            
+            if isempty(OnlyPretone_correct_files)
+                fprintf('Skipping %s %s: no OnlyPretone sig‑channel file.\n', Animal, RecDate);
+                continue;
+            end
+         end
+
+        if strcmp(Epoch,'preCueOnset') == 1
+            OnlyPretone_correct_SigChans_fn = sprintf('SigChannels_%s_preCueOnset_OnlyPretone_Correct_%s.mat', RecDate, Frequency_Band);
+            OnlyPretone_correct_files       = dir(fullfile(chandir, OnlyPretone_correct_SigChans_fn));
+            
+            if isempty(OnlyPretone_correct_files)
+                fprintf('Skipping %s %s: no OnlyPretone sig‑channel file.\n', Animal, RecDate);
+                continue;
+            end
         end
 
-        % Get OnlyPretone Sig. Channels
-
-        OnlyPretone_correct_SigChans_fn = sprintf('SigChannels_%s_%s_%s_%s_%s.mat', RecDate, 'testToneOnset', 'OnlyPretone', 'Correct', Frequency_Band);
-        OnlyPretone_correct_files = dir(fullfile(chandir, OnlyPretone_correct_SigChans_fn));
-
-
-        if  isempty(OnlyPretone_correct_files)
-
-          % generate null output files if there are no sig. channels for Condition_2
-          % this is supposed to stop the code because there is no point continuing if there either of the conditions are empty
-
-          save_file_name = fullfile(savedir, sprintf('NULL_%s_%s_%s_%s_%s_%s_%s_data.txt', RecDate, Animal,'testToneOnset', 'OnlyPretone', Frequency_Band, 'Correct'));
-          fid4 = fopen(save_file_name, 'w');
-          fclose('all');
-
-        else
-
+        % load & split
         OnlyPretone_correct_SigChans = load(fullfile(chandir, OnlyPretone_correct_SigChans_fn), 'significant_channels');
         OnlyPretone_correct_modifiedCellArray   = regexprep(OnlyPretone_correct_SigChans.significant_channels , '^(D1_|D2_|D3_|D4_)', '*');
 
         % Separate elements that start with *PFC and *AC
         OnlyPretone_correct_PFC_chans  =  OnlyPretone_correct_modifiedCellArray(startsWith(OnlyPretone_correct_modifiedCellArray, '*PFC'));
         OnlyPretone_correct_AC_chans   =  OnlyPretone_correct_modifiedCellArray(startsWith(OnlyPretone_correct_modifiedCellArray, '*AC'));
-
-        % now we build a matrix of all of the shared channel pairs between
-        % correct and wrong trials
-
-        % Find common elements
-        combined_PFC_chans =  unique([OnlyPrior_correct_PFC_chans; OnlyPretone_correct_PFC_chans], 'stable');
-        combined_AC_chans  =  unique([OnlyPrior_correct_AC_chans;  OnlyPretone_correct_AC_chans],  'stable');
-
-        % Get all pairwise combinations
-        [PFC_comb, AC_comb] = ndgrid(combined_PFC_chans, combined_AC_chans);
-
-         % Reshape into Nx2 cell array
-         Shared_ChannelPairs = [PFC_comb(:), AC_comb(:)]; % these are the channel pairs that we are going to the analysis on, these will change as we loop through sessions.
+        
+        % — build channel‑pair lists —
+        [OnlyPrior_PFC_comb,   OnlyPrior_AC_comb]     = ndgrid(OnlyPrior_correct_PFC_chans,   OnlyPrior_correct_AC_chans);
+        OnlyPrior_ChannelPairs                        = [OnlyPrior_PFC_comb(:),   OnlyPrior_AC_comb(:)];
+        
+        [OnlyPretone_PFC_comb, OnlyPretone_AC_comb]   = ndgrid(OnlyPretone_correct_PFC_chans, OnlyPretone_correct_AC_chans);
+        OnlyPretone_ChannelPairs                      = [OnlyPretone_PFC_comb(:), OnlyPretone_AC_comb(:)];
 
          % clear variables used to generate shared channel pairs
-         clear_list = {'AC_comb', 'combined_AC_chans', 'combined_PFC_chans', 'OnlyPrior_correct_files', 'OnlyPretone_correct_files','PFC_comb', 'OnlyPrior_correct_PFC_chans', 'OnlyPretone_correct_PFC_chans', ...
+         clear_list = {'OnlyPrior_AC_comb', 'OnlyPrior_PFC_comb', 'OnlyPretone_AC_comb', 'OnlyPretone_PFC_comb', 'OnlyPrior_correct_files', 'OnlyPretone_correct_files','OnlyPrior_correct_PFC_chans', 'OnlyPretone_correct_PFC_chans', ...
                        'OnlyPrior_correct_AC_chans', 'OnlyPretone_correct_AC_chans', 'OnlyPrior_correct_modifiedCellArray', 'OnlyPretone_correct_modifiedCellArray', ...
                        'OnlyPrior_correct_SigChans_fn', 'OnlyPretone_correct_SigChans_fn', 'OnlyPretone_correct_SigChans_fn', 'OnlyPrior_correct_SigChans', 'OnlyPretone_correct_SigChans'};
 
          clear(clear_list{:});
-         clear clear_list;
+         clear clear_list;   
 
-         end        
-     
+            % ——— after generating OnlyPrior_ChannelPairs & OnlyPretone_ChannelPairs ———
+            if isempty(OnlyPrior_ChannelPairs) || isempty(OnlyPretone_ChannelPairs)
+                fprintf('Skipping %s %s: no channel pairs to process.\n', Animal, RecDate);
+                continue;   % go straight to the next rd in the for‑loop
+            end
+
          % STEP 2: Load in the data, and record numerical values to 'H' and
          % 'L' designation, and code each trials as congruent and
          % incongruent. 
@@ -303,16 +322,14 @@ SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000]; 
             % Number of bootstrap iterations
             nIterations = 50;
             
-            % Preallocate arrays to store coherence spectra
+            % Preallocate arrays to store PSI calues 
             % Assume size is [nPairs x nFreqs], e.g., 190 channel pairs by 101 frequencies
-            nPairs = size(Shared_ChannelPairs, 1);
+            OnlyPrior_nPairs   = size(OnlyPrior_ChannelPairs, 1);
+            OnlyPretone_nPairs = size(OnlyPretone_ChannelPairs, 1);
             nFreqs = 101;
-            
-            Coh_OnlyPrior_all   = zeros(nPairs, nFreqs, nIterations);
-            Coh_OnlyPretone_all = zeros(nPairs, nFreqs, nIterations);
-            
-            PSI_OnlyPrior_all   = zeros(nPairs, nFreqs, nIterations);
-            PSI_OnlyPretone_all = zeros(nPairs, nFreqs, nIterations);
+           
+            PSI_OnlyPrior_all   = zeros(OnlyPrior_nPairs, nFreqs, nIterations);
+            PSI_OnlyPretone_all = zeros(OnlyPretone_nPairs, nFreqs, nIterations);
             
             for b = 1:nIterations
 
@@ -361,58 +378,53 @@ SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000]; 
                     freq_OnlyPrior      = ft_freqanalysis(cfg, OnlyPrior_trials_subset);
                     freq_OnlyPretone    = ft_freqanalysis(cfg, OnlyPretone_trials_subset);
         
-                    cfg             = [];
-                    cfg.method      = 'psi';
-                    cfg.bandwidth   = 2;
-                    cfg.channelcmb  = Shared_ChannelPairs; % representing the all shared channel pairs for the 
-        
+                    cfg                   = [];
+                    cfg.method            = 'psi';
+                    cfg.bandwidth         = 2;
+                    cfg.channelcmb        = OnlyPrior_ChannelPairs; % representing the all shared channel pairs for the 
                     PSI_OnlyPrior         = ft_connectivityanalysis(cfg, freq_OnlyPrior);
                     PSI_OnlyPrior.dof     = length(OnlyPrior_trials_subset.trial);
+                    
+                    cfg                     = [];
+                    cfg.method              = 'psi';
+                    cfg.bandwidth           = 2;
+                    cfg.channelcmb          = OnlyPretone_ChannelPairs; % representing the all shared channel pairs for the 
                     PSI_OnlyPretone         = ft_connectivityanalysis(cfg, freq_OnlyPretone);
                     PSI_OnlyPretone.dof     = length(OnlyPretone_trials_subset.trial);
                     
-                    % Store the cohspectrm values
+                    % Store the PSI values
                     PSI_OnlyPrior_all(:, :, b)   = PSI_OnlyPrior.psispctrm;
                     PSI_OnlyPretone_all(:, :, b) = PSI_OnlyPretone.psispctrm;
 
-                
-                    % Calculate Coherence for both Conditions 
-                    % non-parametric computation of the cross-spectral density matrix 
-        
-                    cfg            = [];
-                    cfg.method     = 'coh';
-                    cfg.channelcmb = Shared_ChannelPairs;   
-        
-                    Coh_OnlyPrior       = ft_connectivityanalysis(cfg, freq_OnlyPrior);
-                    Coh_OnlyPretone     = ft_connectivityanalysis(cfg, freq_OnlyPretone);
-
-                    % Store the cohspectrm values
-                    Coh_OnlyPrior_all(:, :, b)   = Coh_OnlyPrior.cohspctrm;
-                    Coh_OnlyPretone_all(:, :, b) = Coh_OnlyPretone.cohspctrm;
 
             end
 
                     % average the boostrapped subsample 
                     PSI_OnlyPrior.psispctrm    = mean(PSI_OnlyPrior_all, 3);
                     PSI_OnlyPretone.psispctrm  = mean(PSI_OnlyPretone_all, 3);
-                    Coh_OnlyPrior.cohspctrm    = mean(Coh_OnlyPrior_all, 3);
-                    Coh_OnlyPretone.cohspctrm  = mean(Coh_OnlyPretone_all, 3);
 
+                    % Now we need to generate the null distribution. 
+
+                    Only
+              
                     % save session value 
                     save_file_name = sprintf('%s_%s_%s_%s_%s_%s_PSI.mat', Animal, RecDate, 'OnlyPrior', 'correct', 'congruent', Frequency_Band);
                     save(fullfile(savedir, save_file_name), 'PSI_OnlyPrior');
                     save_file_name = sprintf('%s_%s_%s_%s_%s_%s_PSI.mat', Animal, RecDate, 'OnlyPretone', 'correct', 'congruent', Frequency_Band);
                     save(fullfile(savedir, save_file_name), 'PSI_OnlyPretone')
              
-                    save_file_name = sprintf('%s_%s_%s_%s_%s_%s_Coh.mat', Animal, RecDate, 'OnlyPrior', 'correct', 'congruent', Frequency_Band);
-                    save(fullfile(savedir, save_file_name), 'Coh_OnlyPrior');
-                    save_file_name = sprintf('%s_%s_%s_%s_%s_%s_Coh.mat', Animal, RecDate, 'OnlyPretone', 'correct', 'congruent', Frequency_Band);
-                    save(fullfile(savedir, save_file_name), 'Coh_OnlyPretone');
+                    % save_file_name = sprintf('%s_%s_%s_%s_%s_%s_Coh.mat', Animal, RecDate, 'OnlyPrior', 'correct', 'congruent', Frequency_Band);
+                    % save(fullfile(savedir, save_file_name), 'Coh_OnlyPrior');
+                    % save_file_name = sprintf('%s_%s_%s_%s_%s_%s_Coh.mat', Animal, RecDate, 'OnlyPretone', 'correct', 'congruent', Frequency_Band);
+                    % save(fullfile(savedir, save_file_name), 'Coh_OnlyPretone');
 
-                    clear_list = {'freq_OnlyPrior', 'freq_OnlyPretone', 'cfg','PSI_OnlyPrior', 'PSI_OnlyPretone', 'Coh_OnlyPrior', 'Coh_OnlyPretone'};
+                    % clear_list = {'freq_OnlyPrior', 'freq_OnlyPretone', 'cfg','PSI_OnlyPrior', 'PSI_OnlyPretone', 'Coh_OnlyPrior', 'Coh_OnlyPretone'};
+                    clear_list = {'freq_OnlyPrior', 'freq_OnlyPretone', 'cfg','PSI_OnlyPrior', 'PSI_OnlyPretone'};
+
                     clear(clear_list{:});
                     clear clear_list;
 
 
-     end
+end
 
+     

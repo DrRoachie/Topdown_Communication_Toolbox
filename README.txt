@@ -39,15 +39,15 @@ The README file within this directory is particular non-descript because in orde
 
 This folder is the working version of code that generates reportable summaries from the 04_Maris_Connectivity_Test. For Granger and Coherence, it plots the number of significant p-values per channel pair. When organized vertically this metric displays which PFC/AC channels differentially interact as a function prior. SF built code that identify the (first, second, and third) layers groupings that change their communication as a function of prior. Conceptually, this step takes the place of how we originally grouped channels together (superficial, upper-mid, low-mid, and deep). Now we do not have to guess, the current analysis is 'blind' to predetermined laminar demarcation. We identify that channel with  +/- 2 channels, exclude that range, and carry out that process 2 more times. If there are two channels tied for the max, their ranges take up the first and second slots. This code has also been outfitted to calculate cross correlation and phase slope index shared channel pairs
 
-06_Epoch_Analysis
+06_Epoch_PSI_Analysis
 
 Contains code that compares PFC-AC connectivity between different task epochs (PreCueOnset and TestToneOnset). PSI and coherence are calculated following trial subsampling, and compared with non-parametric statistical testing. PSI and Coherence are visualized both spatially (i.e. by Channel-Pair via heat map) or non-spatially (i.e., by condition via histogram). 
 
-07_Expectation_Analysis
+07_Expectation_PSI_Analysis
 
 Same logic as 06_Epoch_Analysis, hard coded data selection code for convenience. Compares PFC-AC connectivity between OnlyPrior (informative LED, followed by silence) and OnlyPretone (neutral LED, followed by pretones) trials.
 
-08_Congruency_Analysis
+08_Congruency_PSI_Analysis
 
 Under construction, but also leverages the same logic as 06_Epoch_anslysis and 07_Expectation_Analysis. Compares PFC-AC connectivity between congruent and noncongruent trials.  
 

@@ -1,14 +1,3 @@
-
-%% Code to Cut MoveOnset Epoch 
-
-% This code is WIP. It cuts the moveOnset Epoch. It is supposed to cut
-% moveOnset backwards. The commented section in the bottom is from the
-% first iteration that also adjust the sampleinfo field in the data
-% structure. 
-
-
-
-
 %% Define data to analyze
 Animal     = 'MrMiyagi';                                        % options: 'MrCassius' & 'MrMiyagi';
 Epoch      = 'moveOnset';                                       % options: 'LED', 'testTone';
@@ -52,26 +41,3 @@ for k = 1:length(sessions)
     save(fullfile(savedir, Animal, Epoch, RecDate, savefilename),'choice','data','err','info','pretone','pretoneLength','prior','SNR','stim','trial_id');
     disp(['File saved: ' savefilename ' cut to index ' num2str(Cut_Index)]);
 end
-
-
-
-%% From Version_1 
-
-% for i = 1:length(sessions)
-% 
-%     RecDate = sessions(i).name;
-% 
-%     file_name = [Animal '_moveOnset_' RecDate '_cut.mat'];
-%     disp(['Now processing ' file_name]);
-%     load(fullfile(datadir, Animal, 'moveOnset', RecDate, file_name), 'data');
-% 
-%     start_idx = 1;
-%     for j = 1:length(data.sampleinfo)
-%         data.sampleinfo(j,1) = start_idx;
-%         data.sampleinfo(j,2) = data.sampleinfo(j,1) + 550;
-%         start_idx = data.sampleinfo(j,2) + 5;
-%     end
-% 
-%     disp('Saving...');
-%     save(fullfile(datadir, Animal, 'moveOnset', RecDate, file_name), 'data', '-append');
-% end

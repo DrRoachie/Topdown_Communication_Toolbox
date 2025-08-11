@@ -1,7 +1,7 @@
 % Get a list of all session directories
-parentDir   = 'C:\Users\Corey Roach\Documents\00_DATA\04_Epoc_Cut\MrCassius\testTone';
-sessionDirs = dir('C:\Users\Corey Roach\Documents\00_DATA\04_Epoc_Cut\MrCassius\testTone');
-SAVE_DIR    = 'C:\Users\Corey Roach\Documents\00_DATA\Updated_Epoc_Cut\Cassius\testTone';
+parentDir   = '\\Kilosort\d\Top_Down_Coherence_Project\00_DATA\04_Epoc_Cut\MrCassius\testTone';
+sessionDirs = dir('\\Kilosort\d\Top_Down_Coherence_Project\00_DATA\04_Epoc_Cut\MrCassius\testTone');
+SAVE_DIR    = '\\Kilosort\d\Top_Down_Coherence_Project\00_DATA\04_Epoc_Cut\MrCassius\testTone';
 Epoch       = 'testToneOnset';
  
 

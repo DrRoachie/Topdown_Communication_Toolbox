@@ -6,3 +6,6 @@ STRF_BestFrequency_Analysis: Lalitta code that takes the audideci data,  calcula
 
 Connectivity_Test_Check 
 Utility for checking the progress of Pairwise_Connectivity_Test_Uber. It will return five values corresponding to each band, and indicates whether all shared channel pairs have been analyzed for each band. 
+
+PSI_Validation_Code
+We used this code to simulate data to validate our interpretation of PSI sign. 

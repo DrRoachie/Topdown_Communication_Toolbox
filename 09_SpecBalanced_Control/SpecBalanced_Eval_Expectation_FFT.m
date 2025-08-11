@@ -1,0 +1,309 @@
+%% SpecBalanced_Expectation_FFT
+%
+% This code performs spectral balancing of LFP channels using Fourier analysis 
+% (mtmfft) on expectation-related epochs (testToneOnset).
+%
+% Key points:
+% - Uses FieldTrip's mtmfft to compute the frequency spectrum over the entire trial window.
+% - Extracts theta-band (4–8 Hz) power for each channel.
+% - Identifies overlapping or top/bottom quartile channels based on theta power 
+%   between conditions (OnlyPrior vs OnlyPretone).
+% - Saves balanced channel labels for downstream connectivity analysis (e.g. PSI, coherence).
+% - Generates and saves theta power histograms for visual inspection of balance across conditions.
+%
+% This version replaces time-frequency sliding window analysis (mtmconvol) 
+% with Fourier analysis (mtmfft) for alignment with connectivity analysis windows.
+
+%% Set parameters for the preCue Condition
+
+Frequency_Band    = 'theta';
+SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000];   % Options: any combination of  -11/6, -5/3, -1.5000, -1.2500, 0, 1.2500, 1.5000, 5/3, 11/6; 
+
+%% Calculate PSI Spectra during the testTone epoch; PriorOnly Trials, Collapsed Across Behavior (Correct and Wrong) and SNR (High and Low)
+% ahead of the development of this code, we found that there was not a
+% strong influence of SNR on PSI so we collapse across all levels of SNR
+
+    % Step 1: Get list of modulated channels 
+
+    % Because theta/alpha & beta have the chance to use different channels,
+    % you have to make the code Frequency_Band dependent. 
+
+    if strcmp(Frequency_Band, 'theta') || strcmp(Frequency_Band, 'alpha') % theta and alpha have the same shared pairs according to LFP_spec_eval, so they can use the same set/
+
+        session_info = {'MrCassius', '190330';
+                        'MrCassius', '190404';
+                        'MrCassius', '190413';
+                        'MrCassius', '190416';
+                        'MrM', '190417';
+                        'MrCassius', '190418';
+                        'MrCassius', '190419';
+                        'MrCassius', '190421';
+                        'MrM', '190422';
+                        'MrCassius', '190423';
+                        'MrM', '190425';
+                        'MrM', '190427';
+                        'MrM', '190502';
+                        'MrM', '190514';
+                        'MrCassius', '190515';
+                        'MrCassius', '190517';
+                        'MrM', '190525';
+                        'MrM', '190527';
+                        'MrM', '190530';
+                        'MrCassius', '190531';
+                        'MrM', '190601';
+                        'MrCassius', '190603';
+                        'MrM', '190604';
+                        'MrCassius', '190605';
+                        'MrCassius', '190703';
+                        'MrM', '190704';
+                        'MrM', '190709';
+                        'MrCassius', '190711';
+                        'MrCassius', '190713';
+                        'MrM', '190717';
+                        'MrM', '190719';
+                        'MrCassius', '190720';
+                        'MrM', '190722';
+                        'MrCassius', '190723';
+                        'MrCassius', '190725';};
+
+       
+
+
+    % if strcmp(Frequency_Band, 'beta')
+    % 
+    %     % session_info = {'MrCassius', '190404';
+    %     %                 'MrCassius', '190413';
+    %     %                 'MrCassius', '190416';
+    %     %                 'MrCassius', '190418';
+    %     %                 'MrCassius', '190419';
+    %     %                 'MrM', '190422';
+    %     %                 'MrCassius', '190517';
+    %     %                 'MrM', '190525';
+    %     %                 'MrM', '190527';
+    %     %                 'MrM', '190601';
+    %     %                 'MrCassius', '190703';
+    %     %                 'MrCassius', '190713';
+    %     %                 'MrCassius', '190718';
+    %     %                 'MrM', '190719';
+    %     %                 'MrCassius', '190723';};
+
+
+
+    end
+
+
+%% saving top-cut LFP labels
+
+% Initialize tfreq collection for OnlyPrior and OnlyPretone
+SpecBalanced_Labels_OnlyPrior_PFC   = cell(20, 1);     % each cell = matrix for one PFC channel
+SpecBalanced_Labels_OnlyPretone_PFC = cell(20, 1);
+
+SpecBalanced_Labels_OnlyPrior_AC    = cell(20, 1);      % each cell = matrix for one AC channel
+SpecBalanced_Labels_OnlyPretone_AC  = cell(20, 1);
+
+
+%% Session wise generate the meta data 
+       
+
+     for rd = 1:length(session_info(:,1))
+
+        % Initialize outputs for SpecBalancedRangeBased
+
+        SpecBalanced_theta.OnlyPrior.PFC = {};
+        SpecBalanced_theta.OnlyPrior.AC  = {};
+        SpecBalanced_theta.OnlyPretone.PFC = {};
+        SpecBalanced_theta.OnlyPretone.AC  = {};
+
+
+        % Establish the subset of data that you want to process. 
+
+        Animal           = session_info{rd,1};                  % Options: 'MrCassius', 'MrM'; 
+        RecDate          = session_info{rd,2};                  % Options: 'YYMMDD'; 
+        
+     
+        % Set directory and get a list of all files in the folder with the desired file name pattern.
+
+        datadir           = fullfile('\\Kilosort\d\Top_Down_Coherence_Project\00_DATA\04_Epoc_Cut', Animal, 'testTone', RecDate);                      % epoch data, with the time chunk that you want isolated
+        chandir           = fullfile('\\Kilosort\d\Top_Down_Coherence_Project\00_DATA\05_Significant_Channels_epoch', Animal, 'testTone', RecDate);    % the sig channels that are output LFP_Spectral_Analysis
+        savedir           = 'C:\Users\auditory research la\OneDrive\Desktop\SpecBalanced_Eval_Overlap_Condition_FFT';                                  % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
+        
+        
+        sessions = dir(fullfile(datadir,'*.mat'));              % bad naming convention; only ever one session at a time
+        addpath(genpath(datadir));
+        addpath(genpath(chandir));
+
+        % make save folders and directory
+
+        savedir = fullfile(savedir, RecDate, Animal);
+        if ~exist(savedir, 'dir')                               % make folders if they don't exist already
+           mkdir(savedir);
+        end   
+
+         % STEP 2: Load in the data, and record numerical values to 'H' and
+         % 'L' designation, and code each trials as congruent and
+         % incongruent. 
+
+        % extract session information
+
+         baseFileName = sessions.name;
+         fullFileName = fullfile(sessions.folder, baseFileName);
+         fprintf(1, 'Now reading %s/n', fullFileName);
+         OnlyPrior_data = load(fullfile(fullFileName));
+         OnlyPretone_data = OnlyPrior_data; % Fork the data to avoid loading the data again...
+
+         % set parameters required for fieldtrip functions and data selection
+         OnlyPrior_params.choice        = OnlyPrior_data.choice;
+         OnlyPrior_params.err           = OnlyPrior_data.err;
+         OnlyPrior_params.pretone       = OnlyPrior_data.pretone;
+         OnlyPrior_params.pretoneLength = OnlyPrior_data.pretoneLength;
+         OnlyPrior_params.prior         = cell2char(OnlyPrior_data.prior); 
+         OnlyPrior_params.SNR           = OnlyPrior_data.SNR;
+
+         % set parameters required for fieldtrip functions and data selection
+         OnlyPretone_params.choice        =  OnlyPretone_data.choice;
+         OnlyPretone_params.err           =  OnlyPretone_data.err;
+         OnlyPretone_params.pretone       =  OnlyPretone_data.pretone;
+         OnlyPretone_params.pretoneLength =  OnlyPretone_data.pretoneLength;
+         OnlyPretone_params.prior         =  cell2char(OnlyPretone_data.prior); 
+         OnlyPretone_params.SNR           =  OnlyPretone_data.SNR;
+
+         % Recode the frequencies of the target at 'H' or 'L'rather than their frequency values. 
+
+         OnlyPrior_data   = ConvertStim(OnlyPrior_data, RecDate);
+         OnlyPretone_data = ConvertStim(OnlyPretone_data, RecDate);
+
+         % Adds new field in data structure for OnlyPrior Trials that
+         % indicates congruence between target and LED
+
+             % Initialize OnlyPrior_data.congruency as a cell array as a new selection factor for select data function  
+
+             OnlyPrior_data.congruency = cell(size(OnlyPrior_data.prior));  % Preallocate as a cell array
+             OnlyPrior_data.pretone    = cellstr(OnlyPrior_data.pretone);
+
+             % Loop through each element in V.prior and V.target
+
+                 for i = 1:length(OnlyPrior_data.prior)
+                    if strcmp(OnlyPrior_data.prior{i}, 'H') && strcmp(OnlyPrior_data.target{i}, 'H')
+                        OnlyPrior_data.congruency{i} = 'congruent';     % If both are 'H'
+                    elseif strcmp(OnlyPrior_data.prior{i}, 'L') && strcmp(OnlyPrior_data.target{i}, 'L')
+                        OnlyPrior_data.congruency{i} = 'congruent';     % If both are 'L'
+                    elseif strcmp(OnlyPrior_data.prior{i}, 'N')
+                       OnlyPrior_data.congruency{i} = 'neutral';        % If prior is 'N'
+                    elseif (strcmp(OnlyPrior_data.prior{i}, 'H') && strcmp(OnlyPrior_data.target{i}, 'L')) || (strcmp(OnlyPrior_data.prior{i}, 'L') && strcmp(OnlyPrior_data.target{i}, 'H'))
+                       OnlyPrior_data.congruency{i} = 'incongruent';    % If prior and target are different
+                    end
+                 end
+
+             OnlyPrior_params.congruency = OnlyPrior_data.congruency;
+
+          % Adds new field in data structure for OnlyPretone Trials that indicates congruence between target and pretone
+          % Initialize OnlyPretone_data.congruency as a cell array as a new selection factor for select data function  
+
+            OnlyPretone_data.congruency = cell(size(OnlyPretone_data.pretone));  % Preallocate as a cell array
+            OnlyPretone_data.pretone = cellstr(OnlyPretone_data.pretone);
+
+             % Loop through each element in V.pretone and V.target
+
+                 for i = 1:length(OnlyPretone_data.pretone)
+                    if strcmp(OnlyPretone_data.pretone{i}, 'H') && strcmp(OnlyPretone_data.target{i}, 'H')
+                        OnlyPretone_data.congruency{i} = 'congruent';       % If both are 'H'
+                    elseif strcmp(OnlyPretone_data.pretone{i}, 'L') && strcmp(OnlyPretone_data.target{i}, 'L')
+                        OnlyPretone_data.congruency{i} = 'congruent';       % If both are 'L'
+                    elseif strcmp(OnlyPretone_data.pretone{i}, 'N')
+                        OnlyPretone_data.congruency{i} = 'neutral';         % If prior is 'N'
+                    elseif (strcmp(OnlyPretone_data.pretone{i}, 'H') && strcmp(OnlyPretone_data.target{i}, 'L')) || (strcmp(OnlyPretone_data.pretone{i}, 'L') && strcmp(OnlyPretone_data.target{i}, 'H'))
+                        OnlyPretone_data.congruency{i} = 'incongruent';     % If prior and target are different
+                    end
+                 end
+
+            OnlyPretone_params.congruency = OnlyPretone_data.congruency;
+
+            % Select the OnlyPrior trials 
+
+            iSelect              = setStimulusCondition('OnlyPrior');
+            iSelect.err          = 'c';                                   % Select correct trials
+            iSelect.SNR          = SNR;                                   % Select all SNR values
+            iSelect.congruency   = 'congruent';                           % Select congruent trials
+            OnlyPrior_trials     = selectData(OnlyPrior_data.data, OnlyPrior_params, iSelect);     % 
+
+            % Select the OnlyPretone trials 
+
+            iSelect              = setStimulusCondition('OnlyPretone');
+            iSelect.err          = 'c';                                    % Select  correct trials
+            iSelect.SNR          = SNR;                                    % Select all SNR values
+            iSelect.congruency   = 'congruent';                            % Select congruent trials
+            OnlyPretone_trials   = selectData(OnlyPretone_data.data, OnlyPretone_params,iSelect); 
+          
+            % Fourier Analysis 
+            % No time-frequency windowing needed; mtmfft computes spectrum over full window
+            cfg = [];
+            cfg.method    = 'mtmfft';
+            cfg.output    = 'pow';
+            cfg.taper     = 'dpss';
+            cfg.tapsmofrq = 4;
+            cfg.pad       = 1;
+            cfg.foilim    = [0 100];
+            
+            freq_OnlyPrior = ft_freqanalysis(cfg, OnlyPrior_trials);
+            freq_OnlyPretone = ft_freqanalysis(cfg, OnlyPretone_trials);
+            
+            % Extract theta power
+            theta_idx_prior = freq_OnlyPrior.freq >= 4 & freq_OnlyPrior.freq <= 8;
+            theta_idx_pretone = freq_OnlyPretone.freq >= 4 & freq_OnlyPretone.freq <= 8;
+            
+            theta_power_OnlyPrior = mean(freq_OnlyPrior.powspctrm(:, theta_idx_prior), 2);
+            theta_power_OnlyPretone = mean(freq_OnlyPretone.powspctrm(:, theta_idx_pretone), 2);
+
+            disp('Theta power extraction complete.')
+
+
+            %% Finding Overlap Between Conditions
+
+            % Overlapping Plot
+            all_vals = [theta_power_OnlyPrior; theta_power_OnlyPretone];
+            min_val = min(all_vals);
+            max_val = max(all_vals);
+            num_bins = 30;
+            bin_edges = linspace(min_val, max_val, num_bins +1);
+    
+            figure;
+            hold on;
+            histogram(theta_power_OnlyPrior, bin_edges, 'FaceAlpha', 0.5, 'DisplayName', 'OnlyPrior');
+            histogram(theta_power_OnlyPretone, bin_edges, 'FaceAlpha', 0.5, 'DisplayName', 'OnlyPretone');
+            xlabel('Mean Theta Power');
+            ylabel('Channel Count');
+            legend;
+            title('Theta Power Distribution: OnlyPrior Trials versus OnlyPretone Trials') 
+
+            % Save histogram
+            saveas(gcf, fullfile(savedir, sprintf('Overlap_OnlyPrior_OnlyPretone_FFT_%s_%s.png', RecDate, Animal)));
+            close(gcf);
+
+            labels_a = freq_OnlyPrior.label;
+            labels_b = freq_OnlyPretone.label;
+            
+            [OnlyPrior_labels_out, OnlyPretone_labels_out] = SpecBalancedRangeBased( ...
+                theta_power_OnlyPrior, theta_power_OnlyPretone, labels_a, labels_b);
+            
+            % === Robustly split the outputs by label prefix ===
+            prior_pfc_out = OnlyPrior_labels_out(contains(OnlyPrior_labels_out, 'PFC'));
+            prior_ac_out  = OnlyPrior_labels_out(contains(OnlyPrior_labels_out, 'AC'));
+            
+            pretone_pfc_out = OnlyPretone_labels_out(contains(OnlyPretone_labels_out, 'PFC'));
+            pretone_ac_out  = OnlyPretone_labels_out(contains(OnlyPretone_labels_out, 'AC'));
+            
+            % === Build output struct ===
+            OverlappingLabelsConditions = struct();
+            OverlappingLabelsConditions.OnlyPrior.PFC = prior_pfc_out(:);
+            OverlappingLabelsConditions.OnlyPrior.AC  = prior_ac_out(:);
+            OverlappingLabelsConditions.OnlyPretone.PFC = pretone_pfc_out(:);
+            OverlappingLabelsConditions.OnlyPretone.AC  = pretone_ac_out(:);
+            
+            % === Save the struct ===
+            save(fullfile(savedir, sprintf('OverlappingLabelsConditions_FFT_%s_%s.mat', RecDate, Animal)), 'OverlappingLabelsConditions');
+     end
+
+           
+        
+
+

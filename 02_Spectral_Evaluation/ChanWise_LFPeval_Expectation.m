@@ -1,22 +1,14 @@
 
 %% Congruency_Connectivity_Test
 
-% This code summarizes the LFP data used to carry out the connectivity study.
-
-% Outputs include:
-
-% Percentage of sessions that have sig. over phase shuffled counterpart 
-% Percentage of sessions that have significant evoked potential.
-% Average power of those significantly evoked channels 
-
-% This code was expanded in late May and early June to compare the
-% spectragrams of the OnlyPrior/OnlyPretone conditions during the testTone
-% epoch. The code extracts the chanenls with either overlapping LFP ranges
-% or, if non-overlapping, the top and bottom quartile. The channel labels
-% of this proceedure will be saved similiarly to the phase shuffle control,
-% and those labels will be used to calculate PSI values. Those PSI values
-% will then be evaluated both spatially and non-spatially. 
-
+% ALERT: This code carries out an analysis on PriorOnly and PretoneOnly
+% trials extracted from the full testTone epoch, so the spectral resolution
+% will be higher (.5 Hz) versus (4 Hz) but will not just include the
+% testTone (likely some pretones and also some of the decision epoch). The
+% reason for this error is that CR was originally interested in filtering
+% with evoked potentials. To get a baseline period, you need to used the
+% preprocessed data not the epoch cut data. This logic then leaked into the
+% thinking about the average power observed on each channel. 
 %% Set parameters for the preCue Condition
 
 Frequency_Band    = 'theta';
@@ -106,26 +98,26 @@ Channelwise_OnlyPretone_sigchans_AC    = zeros(20,1);
 
 % Initialize counters for each of the 20 possible channels that exhibit and
 % acoustic response 
-Channelwise_OnlyPrior_Sigevoked_PFC   = zeros(20, 1);
-Channelwise_OnlyPrior_Sigevoked_AC    = zeros(20, 1);
-Channelwise_OnlyPretone_Sigevoked_PFC = zeros(20, 1);
-Channelwise_OnlyPretone_Sigevoked_AC  = zeros(20, 1);
+Channelwise_OnlyPrior_Sigevoked_PFC    = zeros(20, 1);
+Channelwise_OnlyPrior_Sigevoked_AC     = zeros(20, 1);
+Channelwise_OnlyPretone_Sigevoked_PFC  = zeros(20, 1);
+Channelwise_OnlyPretone_Sigevoked_AC   = zeros(20, 1);
 
+Channelwise_OnlyPrior_LFPpower_PFC     = cell(20, 1);
+Channelwise_OnlyPrior_LFPpower_AC      = cell(20, 1);
+Channelwise_OnlyPretone_LFPpower_PFC   = cell(20, 1);
+Channelwise_OnlyPretone_LFPpower_AC    = cell(20, 1);
 
-Channelwise_OnlyPrior_LFPpowerAVG_PFC   = cell(20, 1);
-Channelwise_OnlyPrior_LFPpower_AC    = cell(20, 1);
-Channelwise_OnlyPretone_LFPpower_PFC = cell(20, 1);
-Channelwise_OnlyPretone_LFPpower_AC  = cell(20, 1);
+Channelwise_OnlyPrior_LFPevoked_PFC    = cell(20, 1);
+Channelwise_OnlyPrior_LFPevoked_AC     = cell(20, 1);
+Channelwise_OnlyPretone_LFPevoked_PFC  = cell(20, 1);
+Channelwise_OnlyPretone_LFPevoked_AC   = cell(20, 1);
 
-Channelwise_OnlyPrior_LFPevoked_PFC   = cell(20, 1);
-Channelwise_OnlyPrior_LFPevoked_AC    = cell(20, 1);
-Channelwise_OnlyPretone_LFPevoked_PFC = cell(20, 1);
-Channelwise_OnlyPretone_LFPevoked_AC  = cell(20, 1);
+Channelwise_OnlyPrior_LFPavg_PFC       = cell(20,1);
+Channelwise_OnlyPrior_LFPavg_AC        = cell(20,1);
+Channelwise_OnlyPretone_LFPavg_PFC     = cell(20,1);
+Channelwise_OnlyPretone_LFPavg_AC      = cell(20,1);
 
-Channelwise_OnlyPrior_LFPavg_PFC      = cell(20,1);
-Channelwise_OnlyPrior_LFPavg_AC       = cell(20,1);
-Channelwise_OnlyPretone_LFPavg_PFC    = cell(20,1);
-Channelwise_OnlyPretone_LFPavg_AC     = cell(20,1);
 
 %% Session wise generate the meta data 
        
@@ -359,7 +351,7 @@ Channelwise_OnlyPretone_LFPavg_AC     = cell(20,1);
 
             % pool all frequency values over the entire 200 ms epoch (25,
             % 10 ms bins)
-            baseline_vals_OnlyPrior = mean(baseline_power_OnlyPrior, 2);  % mean power at each frequency
+            baseline_vals_OnlyPrior = mean(baseline_power_OnlyPrior, 2);  % mean power at each frequency, n = number of ms in condition
             poststim_vals_OnlyPrior = mean(poststim_power_OnlyPrior, 2);
             poststim_avg_OnlyPrior  = mean(poststim_power_OnlyPrior(:));
 
@@ -455,6 +447,9 @@ Channelwise_OnlyPretone_LFPavg_AC     = cell(20,1);
                         end
                     end
 
+                    % This section takes the channels with sig evoked channels, and
+                    % extracts the powerspectra  
+
                     % === OnlyPrior PFC: Significant Evoked Response ===
 
                     for ch = 1:20
@@ -496,7 +491,7 @@ Channelwise_OnlyPretone_LFPavg_AC     = cell(20,1);
                     end
 
 
-        end
+      end
 
       
       %% Per channel what percentage of sessions pass phase-shuffle evaluation

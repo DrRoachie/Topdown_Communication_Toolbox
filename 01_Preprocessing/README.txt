@@ -1,15 +1,25 @@
+README
+
 01_Preprocessing 
 
-Last Updated: 06/16/25
+Updated: 08/11/25
+CR
 
+STRF_BestFrequency_Analysis: code provided by Lalitta to calculate STRF. As of this update, CR never modified anything about it. 
 
 AdjustSampleInfo.m: following time series truncation in the preprocessed data  files, this script adjusts the sampleinfo field. SampleInfo helps fieldtrip retain trial identity. CR is not sure what the field is used for exactly considering our trials should be considered independent and non-continuous. 
 
-ChoppingData.m:truncates the time series, so that field trip only processes a selected epoch. Importantly this strategy reduces the minimum spectral resolution, so theta and alpha will have some overlap on the edges. 
+ChoppingData_fulArray.m: truncates the time series, so that field trip only processes a selected epoch. Importantly this strategy reduces the minimum spectral resolution when converted to the frequency domain via fft. Automated by JK and SB, cross compatible with both the fullArray and bipolar version of the code. 
 
-MoveOnset_Cut: This script is under construction, but is supposed to cut moveOnset data files backwards from joystick onset to encapsulate the decision epoch. 
+MoveOnset_Cut_v2: Cuts the moveOnset data files backwards from joystick onset to encapsulate the decision epoch. A modified version can be used to cut epoch using DDM timings. 
 
-PreprocessLFP_ft: This is a wrapper or uber file developed by Taku that runs all preprocessing steps on selected sessions. This code takes Lalitta's cut epoch data, and runs 'FormatLFP_ft_v2.m'. That function "baseline corrects" (code: basecorrectLFP) to adjust for an offset in the time series inserted by the Synapse (TDT, acquisition software). The data is also referenced by passing the data through a spatial derivation (code: bipolarLFP). Finally, the data is reformatted for future use in field trip functions (code: downsample_bdLFP_v2) and downsampled to 1000 Hz. 
+PreprocessLFP_ft: 
+
+This is a wrapper or uber file developed by Taku that runs all preprocessing steps on selected sessions. This code takes Lalitta's cut epoch data, and runs 'FormatLFP_ft_v2.m'. That function "baseline corrects" (code: basecorrectLFP.m) to adjust for an offset in the time series inserted by the Synapse (TDT, acquisition software). The data is also referenced by passing the data through a spatial derivation (code: bipolarLFP.m). Finally, the data is reformatted for future use in field trip functions (code: downsample_bdLFP_ft.m) and downsampled to 1000 Hz.
+
+***In order to preprocess without bipolar rereferencing, comment out the call to bipolarLFP within downsample_bdLFP_ft.m. 
+
+Notes
 
 "Bipolar derivation is a recommended prestep prior to Granger causality and coherence analysis, as the presence of a common reference can lead to spurious results (73, 74). In addition, bipolar derivation enhances the spatial localization of LFP signals and removes the common reference and any common noise or volume conduction in the signal (75). Here, we computed the sample-by-sample bipolar differences by subtracting contacts that were at a distance of 400 μm: next-nearest neighbors for the laminar probe data spaced at 200 μm between contacts, and next-next-nearest neighbors for the probe data spaced at 100 μm between contacts.
 
