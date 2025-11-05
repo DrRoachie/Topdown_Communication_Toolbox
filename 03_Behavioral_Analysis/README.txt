@@ -1,7 +1,7 @@
 
 07_Behavioral_Analysis
 
-Last updated: 06/16/2025
+Last updated: 09/09/2025
 
 This is code developed by SF to generate and analyze psychometric and chronometric curves. Both functions run animal-wise and condition-wise, meaning for 2 animals and 2 conditions each function must run 4 times. More detailed instruction about running a full Wilcoxon Rank-Sum Test can be found in the Psycho_Chrono_Wilcoxon_Test.m script.
 
@@ -17,8 +17,12 @@ The third chunk is the chronometric analysis. Due to naming differences, defined
 
 **Note: the variable 'sessions' is used dynamically in the psychometric and chronometric chunks due to the differing structures of the Epoc_Cut folder and the DDM csv. For psychometric filtering, sessions is a directory of folders 190330, 190404, etc. In the chronometric chunk, sessions is a list of session identifiers that correspond to a session date but contain values 1, 2, 3, etc. Information about matching session identifiers with dates can be found in the 'audiDeci_monkey_sess_date_13-Jun-2023.csv' file in 03_DDM_Decision_Times.
 
+version 1 - 3 are different implementations of the GLMM and LMM models, basically we were trying to figure out what to do about the pretone conditions.
 
 Psycho_Chrono_Wilcoxon_Test.m
 
 This code performs the Wilcoxon Rank-Sum Test on the psychometric and chronometric data. Importantly, the script relies on the variables 'total_proportion_H' and 'total_RTs' calcualted in Psychometric_Chronometric_Analysis.m to run the test for psychometric and chronometric, respectively. The first two chunks run the rank-sum test on psychometric and chronometric data. In the prior only condition, the test is done on high vs. neutral data and low vs. neutral data. In the pretone only condition, the test is done on high vs. low data. The last chunk saves the 6 p-value results of the tests into a table 'T' which can be saved manually. One table is generated for each animal and the last chunk cannot save successfully until both conditions are run, requiring separate calls to Psychometric_Chronometric_Analysis.m and Psycho_Chrono_Wilcoxon_Test.m.
+
+
+
 

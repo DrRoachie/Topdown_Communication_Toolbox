@@ -19,7 +19,7 @@ ddm_fName   = '20210511_audiDeci_monkeyBeh_DT_13-Jun-2023';
 sessions    = dir(fullfile(datadir, '19*'));
 
 
-%% generate psychometric curve
+%% Psychometric Curve Calculation and Visualization
 
 total_proportion_H  = [];               % size: prior x SNR x session (number of priors x 9 x number of sessions)
 
@@ -76,8 +76,11 @@ n                  = size(total_proportion_H, 3); % number of observations
 standard_error     = std_proportion_H / sqrt(n);
 
 % Use Z-score for 95% confidence level (1.96)
-CI_lower           = mean_proportion_H - 1.96 * standard_error;
-CI_upper           = mean_proportion_H + 1.96 * standard_error;
+% CI_lower           = mean_proportion_H - 1.96 * standard_error;
+% CI_upper           = mean_proportion_H + 1.96 * standard_error;
+
+CI_lower           = mean_proportion_H - std_proportion_H;
+CI_upper           = mean_proportion_H + std_proportion_H;
 
 % Plot psychometric curve with confidence intervals
 figure; hold on;
@@ -131,7 +134,7 @@ end
 set(gca, 'FontName', 'Arial');
 
 
-%% generate chronometric curve
+%% Chronometric Curve Calculation and Visualization 
 
 % Adjust defined data
 if strcmp(Animal, 'MrCassius')
@@ -290,7 +293,10 @@ end
 % Set font to Arial for the entire plot
 set(gca, 'FontName', 'Arial');
 
-%% Binomial Generalized Linear Model with Logit Function to influence of LED on decision behavior and reaction time
+
+%% LED Prior Analysis
+
+% Binomial Generalized Linear Model with Logit Function to influence of LED on decision behavior and reaction time
 
 if strcmp(Condition, 'prior')
 
@@ -393,76 +399,78 @@ disp(anova_RT);
 
 end
 
-% %% Pretone Influence on Choice: Binomial GLMM with Logit Link
+% 
+% %% Pretone Analysis Version 1
+% 
+% % Pretone → Choice (GLMM) with effect-coded Pretone (no neutral baseline)
+% 
+% if strcmp(Condition, 'pretone')
 % 
 % sessions = dir(fullfile(datadir, '19*'));
 % 
-% % Initialize storage
+% % Collect trial-wise data
 % all_choice  = [];
-% all_Pretone = {}; 
+% all_Pretone = {};
 % all_SNR     = [];
 % all_Session = [];
 % 
 % for k = 1:length(sessions)
-%     % Load session data
 %     RecDate = sessions(k).name;
 %     fName   = strcat(Animal,'-',RecDate,'_bdLFP_',Epoch,'_ft');
 % 
-%     if strcmp(Condition, 'pretone')
-%         load(fullfile(datadir, RecDate, fName), 'SNR', 'pretone', 'choice');
-%         prior = pretone; % rename for consistency
-%     else
-%         error('This code is for pretone condition only.');
-%     end
+%     % This block is for Condition == 'pretone'
+%     load(fullfile(datadir, RecDate, fName), 'SNR', 'pretone', 'choice');
+%     prior = pretone;  % rename for consistency
 % 
-%     % Store everything first (do not exclude yet)
+%     % Append (don't exclude 'N' yet)
 %     all_choice  = [all_choice; double(choice == 'H')];
 %     all_Pretone = [all_Pretone; cellstr(prior(:))];
 %     all_SNR     = [all_SNR; SNR(:)];
 %     all_Session = [all_Session; repmat(k, length(SNR), 1)];
 % end
 % 
-% % >>> Global exclusion of 'N' trials after pooling
-% valid_idx = ~strcmp(all_Pretone, 'N');
-% all_choice  = all_choice(valid_idx);
-% all_Pretone = all_Pretone(valid_idx);
-% all_SNR     = all_SNR(valid_idx);
-% all_Session = all_Session(valid_idx);
+% % Exclude neutral/silent pretone 'N'
+% valid_idx     = ~strcmp(all_Pretone, 'N');
+% all_choice    = all_choice(valid_idx);
+% all_Pretone   = all_Pretone(valid_idx);
+% all_SNR       = all_SNR(valid_idx);
+% all_Session   = all_Session(valid_idx);
 % 
-% % Create table
+% % Build table
 % T = table(all_choice, categorical(all_Pretone), all_SNR, categorical(all_Session), ...
 %           'VariableNames', {'Choice','Pretone','SNR','Session'});
 % 
-% % Set 'L' as reference
-% T.Pretone = reordercats(T.Pretone, {'L','H'});
+% % Effect-code Pretone: H = +0.5, L = -0.5  (sum-to-zero; no privileged baseline)
+% Pretone_c = -0.5 * ones(height(T),1);
+% Pretone_c(T.Pretone == 'H') = +0.5;
+% T.Pretone_c = Pretone_c;
 % 
+% % Split by target side (SNR sign)
+% T_highPretone = T(T.SNR > 0, :);   % High target
+% T_lowPretone  = T(T.SNR < 0, :);   % Low target
 % 
-% 
-% %% Split into High and Low target trials
-% T_highPretone = T(T.SNR > 0, :);
-% T_lowPretone  = T(T.SNR < 0, :);
-% 
-% % Fit GLMM for High Target trials
+% % Fit GLMMs (binomial, logit)
 % glme_highPretone = fitglme(T_highPretone, ...
-%     'Choice ~ Pretone * SNR + (1|Session)', ...
+%     'Choice ~ Pretone_c * SNR + (1|Session)', ...
+%     'Distribution','Binomial','Link','logit');
+% 
+% glme_lowPretone = fitglme(T_lowPretone, ...
+%     'Choice ~ Pretone_c * SNR + (1|Session)', ...
 %     'Distribution','Binomial','Link','logit');
 % 
 % disp(glme_highPretone);
-% 
-% % Fit GLMM for Low Target trials
-% glme_lowPretone = fitglme(T_lowPretone, ...
-%     'Choice ~ Pretone * SNR + (1|Session)', ...
-%     'Distribution','Binomial','Link','logit');
-% 
 % disp(glme_lowPretone);
 % 
+% % Interpretation tips:
+% %  - Intercept: grand-mean log-odds of High choice at SNR=0 (because Pretone_c sums to zero).
+% %  - Pretone_c: symmetric H vs L contrast (positive ⇒ H pretone increases odds of High choice vs L).
+% %  - Pretone_c:SNR: how that H–L contrast changes with SNR (nonlinearities can be added later via poly(SNR,2)).
 % 
-% %% Pretone Influence on Reaction Time: Linear Mixed-Effects Model (LMM)
+% 
+% % Pretone → Reaction Time (LMM) using Congruency and AbsSNR
 % 
 % % Load DDM table
 % DDM_table = readtable(fullfile(ddmdir, ddm_fName));
-% 
-% % Filter for correct subject, pretone condition, and correct trials
 % DDM_table = DDM_table(strcmp(DDM_table.subject, Animal2) & ...
 %                       strcmp(DDM_table.ttype, 'pretone_pLH') & ...
 %                       DDM_table.success == 1, :);
@@ -470,153 +478,268 @@ end
 % % Exclude SNR == 0 trials
 % DDM_table = DDM_table(DDM_table.SNR ~= 0, :);
 % 
-% % Add TargetType based on SNR sign
-% DDM_table.TargetType = repmat({'HighTarget'}, height(DDM_table), 1);
-% DDM_table.TargetType(DDM_table.SNR < 0) = {'LowTarget'};
-% DDM_table.TargetType = categorical(DDM_table.TargetType);
+% % Target side (from SNR sign)
+% TargetType = repmat({'HighTarget'}, height(DDM_table), 1);
+% TargetType(DDM_table.SNR < 0) = {'LowTarget'};
+% DDM_table.TargetType = categorical(TargetType);
 % 
-% % Map Pretone triplet codes ('HHH', 'LLL') to 'H' and 'L'
+% % Map ptC triplets to single-letter pretone labels
 % Pretone_labels = cell(size(DDM_table.ptC));
 % Pretone_labels(strcmp(DDM_table.ptC, 'HHH')) = {'H'};
 % Pretone_labels(strcmp(DDM_table.ptC, 'LLL')) = {'L'};
-% DDM_table.Pretone = categorical(Pretone_labels);
+% DDM_table = DDM_table(~cellfun(@isempty, Pretone_labels), :);  % drop any missing
+% DDM_table.Pretone = categorical(Pretone_labels(~cellfun(@isempty, Pretone_labels)));
 % 
-% % Remove rows with missing or empty pretone labels (safety check)
-% DDM_table = DDM_table(~cellfun(@isempty, Pretone_labels), :);
+% % Congruency: (H & HighTarget) or (L & LowTarget)
+% isHighTarget   = (DDM_table.TargetType == 'HighTarget');
+% isHighPretone  = (DDM_table.Pretone     == 'H');
+% Congruent      = (isHighTarget & isHighPretone) | (~isHighTarget & ~isHighPretone);
+% DDM_table.Congruent = categorical(Congruent, [false true], {'Incongruent','Congruent'});
 % 
-% % Build Reaction Time analysis table
-% RT_table = DDM_table(:, {'RT', 'Pretone', 'TargetType', 'session'});
+% % Evidence magnitude
+% DDM_table.AbsSNR = abs(DDM_table.SNR);
+% 
+% % Build RT table
+% RT_table = DDM_table(:, {'RT','Congruent','AbsSNR','session','TargetType'});
 % RT_table.Session = categorical(RT_table.session);
 % 
-% % Set reference levels
-% RT_table.Pretone = reordercats(RT_table.Pretone, {'L', 'H'});
-% RT_table.TargetType = reordercats(RT_table.TargetType, {'LowTarget', 'HighTarget'});
+% % Base model: RT ~ Congruent * AbsSNR + (1|Session)
+% lme_pretoneRT = fitlme(RT_table, 'RT ~ Congruent * AbsSNR + (1|Session)');
 % 
-% %% Fit Linear Mixed-Effects Model
-% lme_pretoneRT = fitlme(RT_table, 'RT ~ Pretone * TargetType + (1|Session)');
+% % If you want to adjust for any baseline High vs Low target RT difference:
+% % lme_pretoneRT = fitlme(RT_table, 'RT ~ Congruent * AbsSNR + TargetType + (1|Session)');
 % 
-% % Display model summary
 % disp(lme_pretoneRT);
-% 
-% % ANOVA for significance of main effects and interaction
 % anova_pretoneRT = anova(lme_pretoneRT);
 % disp(anova_pretoneRT);
 % 
-% %% Optional: Predict Marginal Means (if you’d like plots later)
-% [predTable, CI] = predict(lme_pretoneRT);
+% % Interpretation tips:
+% %  - Congruent (main effect): average RT facilitation (Congruent faster than Incongruent) at AbsSNR=0.
+% %  - Congruent:AbsSNR: how the congruency benefit scales with evidence strength.
+% %  - If you included TargetType: that term soaks up any baseline High vs Low RT asymmetry.
+% 
+% end 
 
-% %% SNR-wise Chi-Squared Test 
-% 
-% % Assumes you already have these arrays: all_choice, all_Pretone, all_SNR
-% % all_choice: vector of binary values (1 = High choice, 0 = Low)
-% % all_Pretone: cell array of 'H' or 'L' pretone values
-% % all_SNR: vector of SNR values
-% 
-% % Assumes: all_choice (0/1), all_Pretone ('H'/'L'), all_SNR (numeric)
-% 
-% SNR_list = unique(all_SNR);
-% p_values = nan(size(SNR_list));
-% chi2_stats = nan(size(SNR_list));
-% 
-% fprintf('SNR\tChi2\tp-value\n');
-% fprintf('---------------------------\n');
-% 
-% for i = 1:length(SNR_list)
-%     snr_val = SNR_list(i);
-% 
-%     idx = all_SNR == snr_val;
-%     choices = all_choice(idx);
-%     pretones = all_Pretone(idx);
-% 
-%     % Build contingency table: rows = Pretone, columns = Choice
-%     [tbl,~,~,labels] = crosstab(pretones, choices);
-% 
-%     % Run chi-squared test of independence
-%     [chi2stat, p] = chi2cont(tbl);
-% 
-%     % Store and display
-%     p_values(i) = p;
-%     chi2_stats(i) = chi2stat;
-%     fprintf('%d\t%.2f\t%.4f\n', snr_val, chi2stat, p);
-% end
 
-%%
-% % Sort p-values in ascending order
-% [p_sorted, sort_idx] = sort(p_values);
-% n = length(p_sorted);
+% %% Pretone Analysis Version 2
 % 
-% % Apply Benjamini-Hochberg correction
-% fdr_corrected = p_sorted .* n ./ (1:n);  % BH formula: p * n / rank
-% fdr_corrected = min(fdr_corrected, 1);   % Cap at 1
+% % Pretone → Choice (GLMM) with effect-coded Pretone (no neutral baseline)
 % 
-% % Enforce monotonicity (non-decreasing correction)
-% for i = n-1:-1:1
-%     fdr_corrected(i) = min(fdr_corrected(i), fdr_corrected(i+1));
+% if strcmp(Condition, 'pretone')
+% 
+% sessions = dir(fullfile(datadir, '19*'));
+% 
+% % Collect trial-wise data
+% all_choice  = [];
+% all_Pretone = {};
+% all_SNR     = [];
+% all_Session = [];
+% 
+% for k = 1:length(sessions)
+%     RecDate = sessions(k).name;
+%     fName   = strcat(Animal,'-',RecDate,'_bdLFP_',Epoch,'_ft');
+% 
+%     % This block is for Condition == 'pretone'
+%     load(fullfile(datadir, RecDate, fName), 'SNR', 'pretone', 'choice');
+%     prior = pretone;  % rename for consistency
+% 
+%     % Append (don't exclude 'N' yet)
+%     all_choice  = [all_choice; double(choice == 'H')];
+%     all_Pretone = [all_Pretone; cellstr(prior(:))];
+%     all_SNR     = [all_SNR; SNR(:)];
+%     all_Session = [all_Session; repmat(k, length(SNR), 1)];
 % end
 % 
-% % Reorder to match original SNR order
-% fdr_corrected_pvals = nan(size(p_values));
-% fdr_corrected_pvals(sort_idx) = fdr_corrected;
+% % Exclude neutral/silent pretone 'N'
+% valid_idx     = ~strcmp(all_Pretone, 'N');
+% all_choice    = all_choice(valid_idx);
+% all_Pretone   = all_Pretone(valid_idx);
+% all_SNR       = all_SNR(valid_idx);
+% all_Session   = all_Session(valid_idx);
 % 
-% % Display results
-% fprintf('\nSNR\tChi2\tp-value\tFDR-corrected\n');
-% fprintf('---------------------------------------------\n');
-% for i = 1:length(SNR_list)
-%     fprintf('%.6f\t%.2f\t%.4f\t%.4f\n', ...
-%         SNR_list(i), ...
-%         chi2_stats(i), ...
-%         p_values(i), ...
-%         fdr_corrected_pvals(i));
+% % Build table
+% T = table(all_choice, categorical(all_Pretone), all_SNR, categorical(all_Session), ...
+%           'VariableNames', {'Choice','Pretone','SNR','Session'});
+% 
+% % Effect-code Pretone: H = +0.5, L = -0.5  (sum-to-zero; no privileged baseline)
+% Pretone_c = -0.5 * ones(height(T),1);
+% Pretone_c(T.Pretone == 'H') = +0.5;
+% T.Pretone_c = Pretone_c;
+% 
+% % Split by target side (SNR sign)
+% T_highPretone = T(T.SNR > 0, :);   % High target
+% T_lowPretone  = T(T.SNR < 0, :);   % Low target
+% 
+% % ===== PRETONE GLMM with 4 SNR categories (rank-safe, no audit) =====
+% 
+% % Expected in T: Choice (0/1), Pretone_c (H=+0.5, L=-0.5), SNR (double), Session (categorical)
+% 
+% % ---- Settings -----------------------------------------------------------
+% tol = 1e-6;           % tolerance for matching exact fractional SNRs
+% zero_policy = 'drop'; % 'drop' | 'high' | 'low'  (where to route SNR==0)
+% 
+% % ---- Define SNR categories ---------------------------------------------
+% High_LowTone_vals  = [-11/6, -5/3];     % strong toward Low target
+% Low_LowTone_vals   = [ -3/2, -5/4];     % weaker toward Low target
+% Low_HighTone_vals  = [  5/4,  3/2];     % weaker toward High target
+% High_HighTone_vals = [  5/3, 11/6];     % strong toward High target
+% 
+% is_HLT = ismembertol(T.SNR, High_LowTone_vals,  tol);
+% is_LLT = ismembertol(T.SNR, Low_LowTone_vals,   tol);
+% is_LHT = ismembertol(T.SNR, Low_HighTone_vals,  tol);
+% is_HHT = ismembertol(T.SNR, High_HighTone_vals, tol);
+% 
+% % Build SNR_cat strings
+% SNR_cat = strings(height(T),1);
+% SNR_cat(is_HLT) = "High_LowTone";
+% SNR_cat(is_LLT) = "Low_LowTone";
+% SNR_cat(is_LHT) = "Low_HighTone";
+% SNR_cat(is_HHT) = "High_HighTone";
+% 
+% % Keep only rows that match one of the four bins
+% keep = SNR_cat ~= "";
+% T = T(keep, :);
+% SNR_cat = SNR_cat(keep);
+% T.SNR_cat = categorical(SNR_cat);  % only present categories are created
+% 
+% % ---- Split by target side and route zeros per policy -------------------
+% isZero       = abs(T.SNR) <= tol;
+% isHighTarget = T.SNR >  tol;
+% isLowTarget  = T.SNR < -tol;
+% 
+% switch lower(zero_policy)
+%     case 'drop'
+%         Th = T(isHighTarget, :);
+%         Tl = T(isLowTarget,  :);
+%     case 'high'
+%         Th = T(isHighTarget | isZero, :);
+%         Tl = T(isLowTarget,           :);
+%     case 'low'
+%         Th = T(isHighTarget,          :);
+%         Tl = T(isLowTarget  | isZero, :);
+%     otherwise
+%         error('zero_policy must be ''drop'', ''high'', or ''low''.');
 % end
-
-
-%%
-
-% % Unique SNR values
-% SNR_list = unique(all_SNR);
-% p_values_RT = nan(size(SNR_list));
-% chi2_stats_RT = nan(size(SNR_list));
 % 
-% fprintf('SNR\tChi2\tp-value\n');
-% fprintf('-----------------------------\n');
+% % ---- Remove unused levels and set reference levels per split -----------
+% % High-target split should contain: Low_HighTone (ref), High_HighTone
+% if ~isempty(Th)
+%     Th.SNR_cat = removecats(Th.SNR_cat);
+%     ch = categories(Th.SNR_cat);
+%     % Put Low_HighTone as reference if present
+%     if ismember('Low_HighTone', ch)
+%         Th.SNR_cat = reordercats(Th.SNR_cat, ['Low_HighTone'; setdiff(ch,'Low_HighTone','stable')]);
+%     end
+% end
 % 
-% for i = 1:length(SNR_list)
-%     snr_val = SNR_list(i);
+% % Low-target split should contain: Low_LowTone (ref), High_LowTone
+% if ~isempty(Tl)
+%     Tl.SNR_cat = removecats(Tl.SNR_cat);
+%     cl = categories(Tl.SNR_cat);
+%     % Put Low_LowTone as reference if present
+%     if ismember('Low_LowTone', cl)
+%         Tl.SNR_cat = reordercats(Tl.SNR_cat, ['Low_LowTone'; setdiff(cl,'Low_LowTone','stable')]);
+%     end
+% end
 % 
-%     % Get trials at current SNR
-%     idx = all_SNR == snr_val;
-%     rt_vals = all_RT(idx);
-%     pretone_vals = all_Pretone(idx);
+% % ---- Choose rank-safe formulas (fallback if a factor collapses) --------
+% form_high = 'Choice ~ Pretone_c * SNR_cat + (1|Session)';
+% form_low  = 'Choice ~ Pretone_c * SNR_cat + (1|Session)';
 % 
-%     % Skip if too few values
-%     if sum(idx) < 10
-%         continue
+% if isempty(Th) || numel(categories(Th.SNR_cat)) < 2, form_high = 'Choice ~ Pretone_c + (1|Session)'; end
+% if ~isempty(Th) && numel(unique(Th.Pretone_c)) < 2, form_high = 'Choice ~ 1 + (1|Session)'; end
+% 
+% if isempty(Tl) || numel(categories(Tl.SNR_cat)) < 2, form_low  = 'Choice ~ Pretone_c + (1|Session)'; end
+% if ~isempty(Tl) && numel(unique(Tl.Pretone_c)) < 2, form_low  = 'Choice ~ 1 + (1|Session)'; end
+% 
+% % ---- Fit GLMMs ---------------------------------------------------------
+% if ~isempty(Th)
+%     glme_high4 = fitglme(Th, form_high, 'Distribution','Binomial','Link','logit', ...
+%                          'DummyVarCoding','reference');
+%     disp(glme_high4);
+% end
+% if ~isempty(Tl)
+%     glme_low4  = fitglme(Tl, form_low,  'Distribution','Binomial','Link','logit', ...
+%                          'DummyVarCoding','reference');
+%     disp(glme_low4);
+% end
+% 
+% % ---- Print simple Pretone effects within each present bin --------------
+% % High-target
+% if exist('glme_high4','var')
+%     cn = glme_high4.CoefficientNames;
+%     b  = glme_high4.Coefficients.Estimate;
+%     V  = glme_high4.CoefficientCovariance;
+% 
+%     % Reference bin name (first category of Th.SNR_cat)
+%     refcats_high = categories(Th.SNR_cat);
+%     if ~isempty(refcats_high)
+%         ref_high = char(refcats_high{1});   % convert to char for %s
+%     else
+%         ref_high = 'REF';
 %     end
 % 
-%     % Bin RTs as 'Fast' or 'Slow' based on median split
-%     median_rt = median(rt_vals);
-%     rt_bin = repmat("Slow", size(rt_vals));
-%     rt_bin(rt_vals <= median_rt) = "Fast";
-% 
-%     % Build contingency table (Pretone x RT bin)
-%     [tbl,~,~,~] = crosstab(pretone_vals, rt_bin);
-% 
-%     % Skip if not enough categories
-%     if any(size(tbl) < 2)
-%         continue
+%     % Pretone effect within reference bin
+%     if any(strcmp(cn,'Pretone_c'))
+%         iPret = strcmp(cn,'Pretone_c');
+%         L = zeros(size(b)); L(iPret) = 1;
+%         est = L'*b; se = sqrt(L'*V*L); z = est/se; p = 2*normcdf(-abs(z));
+%         fprintf('High-target: Pretone effect in %s: est=%.3f, SE=%.3f, z=%.2f, p=%.3g, OR=%.2f\n', ...
+%                 ref_high, est, se, z, p, exp(est));
 %     end
 % 
-%     % Chi-squared test
-%     [chi2stat, p] = chi2cont(tbl);
-% 
-%     % Store and print results
-%     chi2_stats_RT(i) = chi2stat;
-%     p_values_RT(i) = p;
-% 
-%     fprintf('%.2f\t%.2f\t%.4f\n', snr_val, chi2stat, p);
+%     % Pretone effect within High_HighTone (if present)
+%     if any(strcmp(cn,'Pretone_c:SNR_cat_High_HighTone'))
+%         iPret = strcmp(cn,'Pretone_c');
+%         iInt  = strcmp(cn,'Pretone_c:SNR_cat_High_HighTone');
+%         L = zeros(size(b)); L(iPret)=1; L(iInt)=1;
+%         est = L'*b; se = sqrt(L'*V*L); z = est/se; p = 2*normcdf(-abs(z));
+%         fprintf('High-target: Pretone effect in High_HighTone: est=%.3f, SE=%.3f, z=%.2f, p=%.3g, OR=%.2f\n', ...
+%                 est, se, z, p, exp(est));
+%     end
 % end
-%% NEW PRETONE ANALYSIS
+% 
+% % Low-target
+% if exist('glme_low4','var')
+%     cn = glme_low4.CoefficientNames;
+%     b  = glme_low4.Coefficients.Estimate;
+%     V  = glme_low4.CoefficientCovariance;
+% 
+%     % Reference bin name (first category of Tl.SNR_cat)
+%     refcats_low = categories(Tl.SNR_cat);
+%     if ~isempty(refcats_low)
+%         ref_low = char(refcats_low{1});
+%     else
+%         ref_low = 'REF';
+%     end
+% 
+%     % Pretone effect within reference bin
+%     if any(strcmp(cn,'Pretone_c'))
+%         iPret = strcmp(cn,'Pretone_c');
+%         L = zeros(size(b)); L(iPret) = 1;
+%         est = L'*b; se = sqrt(L'*V*L); z = est/se; p = 2*normcdf(-abs(z));
+%         fprintf('Low-target:  Pretone effect in %s: est=%.3f, SE=%.3f, z=%.2f, p=%.3g, OR=%.2f\n', ...
+%                 ref_low, est, se, z, p, exp(est));
+%     end
+% 
+%     % Pretone effect within High_LowTone (if present)
+%     if any(strcmp(cn,'Pretone_c:SNR_cat_High_LowTone'))
+%         iPret = strcmp(cn,'Pretone_c');
+%         iInt  = strcmp(cn,'Pretone_c:SNR_cat_High_LowTone');
+%         L = zeros(size(b)); L(iPret)=1; L(iInt)=1;
+%         est = L'*b; se = sqrt(L'*V*L); z = est/se; p = 2*normcdf(-abs(z));
+%         fprintf('Low-target:  Pretone effect in High_LowTone: est=%.3f, SE=%.3f, z=%.2f, p=%.3g, OR=%.2f\n', ...
+%                 est, se, z, p, exp(est));
+%     end
+% end
+% 
+% end 
+
+%% Pretone Analysis Version 3
+
 % Pretone → Choice (GLMM) with effect-coded Pretone (no neutral baseline)
+
+if strcmp(Condition, 'pretone')
 
 sessions = dir(fullfile(datadir, '19*'));
 
@@ -661,91 +784,88 @@ T.Pretone_c = Pretone_c;
 T_highPretone = T(T.SNR > 0, :);   % High target
 T_lowPretone  = T(T.SNR < 0, :);   % Low target
 
-% Fit GLMMs (binomial, logit)
-glme_highPretone = fitglme(T_highPretone, ...
-    'Choice ~ Pretone_c * SNR + (1|Session)', ...
-    'Distribution','Binomial','Link','logit');
+% ===== Pretone GLMM with symmetric piecewise SNR (zero shared) =====
+% Expected in T: Choice (0/1), Pretone_c (H=+0.5, L=-0.5), SNR (double), Session (categorical)
 
-glme_lowPretone = fitglme(T_lowPretone, ...
-    'Choice ~ Pretone_c * SNR + (1|Session)', ...
-    'Distribution','Binomial','Link','logit');
+tol = 1e-6;
 
-disp(glme_highPretone);
-disp(glme_lowPretone);
+% Construct piecewise SNR (nonnegative) and a zero indicator
+T.SNR_pos = max(T.SNR, 0);
+T.SNR_neg = max(-T.SNR, 0);      % magnitude for negative SNRs
+T.ZeroInd = double(abs(T.SNR) <= tol);  % 1 only for truly-zero SNR trials
 
-% Interpretation tips:
-%  - Intercept: grand-mean log-odds of High choice at SNR=0 (because Pretone_c sums to zero).
-%  - Pretone_c: symmetric H vs L contrast (positive ⇒ H pretone increases odds of High choice vs L).
-%  - Pretone_c:SNR: how that H–L contrast changes with SNR (nonlinearities can be added later via poly(SNR,2)).
+% Rank-sane guard: drop rows not on your SNR grid if you want (optional)
+% (Skip this if you want to keep everything)
+% keep = ismembertol(T.SNR, [-11/6,-5/3,-3/2,-5/4,0,5/4,3/2,5/3,11/6], tol);
+% T = T(keep,:);
 
+% Fit: separate slopes for +/- SNR; zero is a shared knot (intercept).
+% Include ZeroInd so 0 can have its own offset, and interact Pretone with everything.
+form_piece = 'Choice ~ Pretone_c * (SNR_pos + SNR_neg + ZeroInd) + (1|Session)';
 
-%% Pretone → Reaction Time (LMM) using Congruency and AbsSNR
+glme_pw = fitglme(T, form_piece, ...
+    'Distribution','Binomial','Link','logit', ...
+    'DummyVarCoding','reference');
 
-% Load DDM table
-DDM_table = readtable(fullfile(ddmdir, ddm_fName));
-DDM_table = DDM_table(strcmp(DDM_table.subject, Animal2) & ...
-                      strcmp(DDM_table.ttype, 'pretone_pLH') & ...
-                      DDM_table.success == 1, :);
+disp(glme_pw);
 
-% Exclude SNR == 0 trials
-DDM_table = DDM_table(DDM_table.SNR ~= 0, :);
+% ---- Simple Pretone (H vs L) contrasts at selected SNRs ----
+% For a given SNR s:
+%  if s > 0:  Δβ = β_P + s*β_P:SNR_pos
+%  if s < 0:  Δβ = β_P + |s|*β_P:SNR_neg
+%  if s = 0:  Δβ = β_P + β_P:ZeroInd
+cn = glme_pw.CoefficientNames;
+b  = glme_pw.Coefficients.Estimate;
+V  = glme_pw.CoefficientCovariance;
 
-% Target side (from SNR sign)
-TargetType = repmat({'HighTarget'}, height(DDM_table), 1);
-TargetType(DDM_table.SNR < 0) = {'LowTarget'};
-DDM_table.TargetType = categorical(TargetType);
+iP     = strcmp(cn,'Pretone_c');
+iP_pos = strcmp(cn,'Pretone_c:SNR_pos');
+iP_neg = strcmp(cn,'Pretone_c:SNR_neg');
+iP_zer = strcmp(cn,'Pretone_c:ZeroInd');
 
-% Map ptC triplets to single-letter pretone labels
-Pretone_labels = cell(size(DDM_table.ptC));
-Pretone_labels(strcmp(DDM_table.ptC, 'HHH')) = {'H'};
-Pretone_labels(strcmp(DDM_table.ptC, 'LLL')) = {'L'};
-DDM_table = DDM_table(~cellfun(@isempty, Pretone_labels), :);  % drop any missing
-DDM_table.Pretone = categorical(Pretone_labels(~cellfun(@isempty, Pretone_labels)));
+% robust to missing terms
+if ~any(iP_pos), iP_pos = false(size(b)); end
+if ~any(iP_neg), iP_neg = false(size(b)); end
+if ~any(iP_zer), iP_zer = false(size(b)); end
 
-% Congruency: (H & HighTarget) or (L & LowTarget)
-isHighTarget   = (DDM_table.TargetType == 'HighTarget');
-isHighPretone  = (DDM_table.Pretone     == 'H');
-Congruent      = (isHighTarget & isHighPretone) | (~isHighTarget & ~isHighPretone);
-DDM_table.Congruent = categorical(Congruent, [false true], {'Incongruent','Congruent'});
+zcrit = 1.96;
+s_grid_neg  = [-1.8333, -1.6667, -1.5, -1.25];
+s_grid_pos  = [ 1.25, 1.5, 1.6667, 1.8333];
 
-% Evidence magnitude
-DDM_table.AbsSNR = abs(DDM_table.SNR);
+fprintf('\n--- Simple Pretone (H vs L) effects with piecewise SNR ---\n');
 
-% Build RT table
-RT_table = DDM_table(:, {'RT','Congruent','AbsSNR','session','TargetType'});
-RT_table.Session = categorical(RT_table.session);
-
-% Base model: RT ~ Congruent * AbsSNR + (1|Session)
-lme_pretoneRT = fitlme(RT_table, 'RT ~ Congruent * AbsSNR + (1|Session)');
-
-% If you want to adjust for any baseline High vs Low target RT difference:
-% lme_pretoneRT = fitlme(RT_table, 'RT ~ Congruent * AbsSNR + TargetType + (1|Session)');
-
-disp(lme_pretoneRT);
-anova_pretoneRT = anova(lme_pretoneRT);
-disp(anova_pretoneRT);
-
-% Interpretation tips:
-%  - Congruent (main effect): average RT facilitation (Congruent faster than Incongruent) at AbsSNR=0.
-%  - Congruent:AbsSNR: how the congruency benefit scales with evidence strength.
-%  - If you included TargetType: that term soaks up any baseline High vs Low RT asymmetry.
-
-
-%%
-function [chi2stat, p] = chi2cont(tbl)
-% chi2cont - Chi-squared test of independence for contingency table
-    expected = sum(tbl, 2) * sum(tbl, 1) / sum(tbl(:));
-    chi2stat = sum((tbl - expected).^2 ./ expected, 'all');
-    df = (size(tbl,1)-1) * (size(tbl,2)-1);
-    p = 1 - chi2cdf(chi2stat, df);
+% Negative SNR side (Low-target)
+fprintf('Negative SNR (Low-target side):\n');
+for s = s_grid_neg
+    sabs = abs(s);
+    L = zeros(size(b));
+    L(iP)     = 1;
+    L(iP_neg) = sabs;
+    est = L'*b; se = sqrt(L'*V*L);
+    ci = est + [-1 1]*zcrit*se;
+    z = est/se; p = 2*normcdf(-abs(z));
+    fprintf('  SNR=%6.4f:  Δβ=%.3f  SE=%.3f  z=%.2f  p=%.3g  OR=%.2f  (95%% CI %.2f–%.2f)\n', ...
+            s, est, se, z, p, exp(est), exp(ci(1)), exp(ci(2)));
 end
 
-%%
+% Zero SNR (shared)
+L = zeros(size(b)); L(iP)=1; L(iP_zer)=1;
+est = L'*b; se = sqrt(L'*V*L); ci = est + [-1 1]*zcrit*se; z = est/se; p = 2*normcdf(-abs(z));
+fprintf('  SNR= 0.0000:  Δβ=%.3f  SE=%.3f  z=%.2f  p=%.3g  OR=%.2f  (95%% CI %.2f–%.2f)\n', ...
+        est, se, z, p, exp(est), exp(ci(1)), exp(ci(2)));
 
-function out = ternary(condition, true_val, false_val)
-    if condition
-        out = true_val;
-    else
-        out = false_val;
-    end
+% Positive SNR side (High-target)
+fprintf('Positive SNR (High-target side):\n');
+for s = s_grid_pos
+    L = zeros(size(b));
+    L(iP)     = 1;
+    L(iP_pos) = s;
+    est = L'*b; se = sqrt(L'*V*L);
+    ci = est + [-1 1]*zcrit*se;
+    z = est/se; p = 2*normcdf(-abs(z));
+    fprintf('  SNR=%6.4f:  Δβ=%.3f  SE=%.3f  z=%.2f  p=%.3g  OR=%.2f  (95%% CI %.2f–%.2f)\n', ...
+            s, est, se, z, p, exp(est), exp(ci(1)), exp(ci(2)));
 end
+
+end 
+

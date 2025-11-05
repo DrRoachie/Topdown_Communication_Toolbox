@@ -69,7 +69,7 @@ Epoch = {'testToneOnset' ; 'preCueOnset'};          % options: 'preCueOnset'
 behavior_list = {'Correct'};                        % options: 'Wrong' 
 condition_list = {'OnlyPrior' ; 'OnlyPretone'};     % options: 'OnlyPretone'
 freq_band_list = {'theta' ;  'beta'};               % options: 'alpha'; 'beta'; 'gamma'; 'highGamma'
-%%
+%
 
 for i = 1:size(session_info,1)
     Animal = session_info{i,1};

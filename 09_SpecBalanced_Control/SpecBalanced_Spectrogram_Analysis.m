@@ -234,7 +234,7 @@ SpecBalanced_theta.OnlyPretone.AC  = {};
          OnlyPrior_data = load(fullfile(fullFileName));
          OnlyPretone_data = OnlyPrior_data; % Fork the data to avoid loading the data again...
 
-                 % set parameters required for fieldtrip functions and data selection
+          % set parameters required for fieldtrip functions and data selection
          OnlyPrior_params.choice        = OnlyPrior_data.choice;
          OnlyPrior_params.err           = OnlyPrior_data.err;
          OnlyPrior_params.pretone       = OnlyPrior_data.pretone;

@@ -29,7 +29,7 @@
 
 %% Set parameters for the testTone Condition
 
-Frequency_Band    = 'theta';
+Frequency_Band    = 'beta';
 SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000];   % Options: any combination of  -11/6, -5/3, -1.5000, -1.2500, 0, 1.2500, 1.5000, 5/3, 11/6; 
 
 %% Calculate PSI Spectra during the testTone epoch; PriorOnly Trials, Collapsed Across Behavior (Correct and Wrong) and SNR (High and Low)
@@ -80,29 +80,29 @@ SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000]; 
                         'MrCassius', '190725';};
 
 
-  
+
     end
 
-    % if strcmp(Frequency_Band, 'beta')
-    % 
-    %     session_info = {
-    %                     'MrCassius', '190404';
-    %                     'MrCassius', '190413';
-    %                     'MrCassius', '190416';
-    %                     'MrCassius', '190418';
-    %                     'MrCassius', '190419';
-    %                     'MrM', '190422';
-    %                     'MrCassius', '190517';
-    %                     'MrM', '190525';
-    %                     'MrM', '190527';
-    %                     'MrM', '190601';
-    %                     'MrCassius', '190713';
-    %                     'MrCassius', '190718';
-    %                     'MrM', '190719';
-    %                     'MrCassius', '190723';};
-    % 
-    % 
-    %  end
+    if strcmp(Frequency_Band, 'beta')
+
+        session_info = {
+                        'MrCassius', '190404';
+                        'MrCassius', '190413';
+                        'MrCassius', '190416';
+                        'MrCassius', '190418';
+                        'MrCassius', '190419';
+                        'MrM', '190422';
+                        'MrCassius', '190517';
+                        'MrM', '190525';
+                        'MrM', '190527';
+                        'MrM', '190601';
+                        'MrCassius', '190713';
+                        'MrCassius', '190718';
+                        'MrM', '190719';
+                        'MrCassius', '190723';};
+
+
+     end
 
      for rd = 1:length(session_info(:,1))
 
@@ -111,9 +111,9 @@ SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000]; 
         RecDate          = session_info{rd,2};                  % Options: 'YYMMDD'; 
 
         % Set directory and get a list of all files in the folder with the desired file name pattern.
-        datadir           = fullfile('D:\04_Epoc_Cut', Animal, 'testTone', RecDate);                                 % epoch data, with the time chunk that you want isolated
-        chandir           = fullfile('D:\05_Significant_Channels_epoch', Animal, 'testTone', RecDate);     % the sig channels that are output LFP_Spectral_Analysis
-        savedir           = 'C:\Users\Corey Roach\Documents\00_DATA\PSI_Connectivity_Whole';  % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
+        datadir           = fullfile('D:\04_Epoc_Cut_bipolar', Animal, 'testTone', RecDate);                                 % epoch data, with the time chunk that you want isolated
+        chandir           = fullfile('D:\05_Significant_Channels_bipolar', Animal, 'testTone', RecDate);     % the sig channels that are output LFP_Spectral_Analysis
+        savedir           = 'C:\Users\Corey Roach\Documents\00_DATA\2025_09_24_PSI_Expectation_Analysis_All_Congruency';  % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
 
         sessions = dir(fullfile(datadir,'*.mat')); % bad naming convention; only ever one session at a time
         addpath(genpath(datadir));
@@ -231,7 +231,6 @@ SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000]; 
          OnlyPrior_data   = ConvertStim(OnlyPrior_data, RecDate);
          OnlyPretone_data = ConvertStim(OnlyPretone_data, RecDate);
 
-
          % Adds new field in data structure for OnlyPrior Trials that
          % indicates congruence between target and LED
 
@@ -282,18 +281,17 @@ SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000]; 
             iSelect              = setStimulusCondition('OnlyPrior');
             iSelect.err          = 'c';                                   % Select correct trials
             iSelect.SNR          = SNR;                                   % Select all SNR values
-            iSelect.congruency   = 'congruent';                           % Select congruent trials
+            iSelect.congruency   = [];                           % Select congruent trials
             OnlyPrior_trials     = selectData(OnlyPrior_data.data, OnlyPrior_params, iSelect);     % 
 
             % Select the OnlyPretone trials 
             iSelect              = setStimulusCondition('OnlyPretone');
             iSelect.err          = 'c';                                    % Select  correct trials
             iSelect.SNR          = SNR;                                    % Select all SNR values
-            iSelect.congruency   = 'congruent';                            % Select congruent trials
+            iSelect.congruency   = [];                            % Select congruent trials
             OnlyPretone_trials   = selectData(OnlyPretone_data.data, OnlyPretone_params,iSelect);   
 
-            
-
+      
             % Number of bootstrap iterations
             nIterations = 50;
             
@@ -302,9 +300,10 @@ SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000]; 
             nPairs = size(Shared_ChannelPairs, 1);
             nFreqs = 101;
             
+            
             Coh_OnlyPrior_all   = zeros(nPairs, nFreqs, nIterations);
             Coh_OnlyPretone_all = zeros(nPairs, nFreqs, nIterations);
-            
+
             PSI_OnlyPrior_all   = zeros(nPairs, nFreqs, nIterations);
             PSI_OnlyPretone_all = zeros(nPairs, nFreqs, nIterations);
             
@@ -369,18 +368,18 @@ SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000]; 
                     PSI_OnlyPretone_all(:, :, b) = PSI_OnlyPretone.psispctrm;
 
                 
-                    % Calculate Coherence for both Conditions 
-                    % non-parametric computation of the cross-spectral density matrix 
-        
-                    cfg            = [];
-                    cfg.method     = 'coh';
-                    cfg.channelcmb = Shared_ChannelPairs;   
-                    Coh_OnlyPrior       = ft_connectivityanalysis(cfg, freq_OnlyPrior);
-                    Coh_OnlyPretone     = ft_connectivityanalysis(cfg, freq_OnlyPretone);
-
-                    % Store the cohspectrm values
-                    Coh_OnlyPrior_all(:, :, b)   = Coh_OnlyPrior.cohspctrm;
-                    Coh_OnlyPretone_all(:, :, b) = Coh_OnlyPretone.cohspctrm;
+                    % % Calculate Coherence for both Conditions 
+                    % % non-parametric computation of the cross-spectral density matrix 
+                    % 
+                    % cfg            = [];
+                    % cfg.method     = 'coh';
+                    % cfg.channelcmb = Shared_ChannelPairs;   
+                    % Coh_OnlyPrior       = ft_connectivityanalysis(cfg, freq_OnlyPrior);
+                    % Coh_OnlyPretone     = ft_connectivityanalysis(cfg, freq_OnlyPretone);
+                    % 
+                    % % Store the cohspectrm values
+                    % Coh_OnlyPrior_all(:, :, b)   = Coh_OnlyPrior.cohspctrm;
+                    % Coh_OnlyPretone_all(:, :, b) = Coh_OnlyPretone.cohspctrm;
 
             end
 
@@ -391,15 +390,15 @@ SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000]; 
                     Coh_OnlyPretone.cohspctrm  = mean(Coh_OnlyPretone_all, 3);
 
                     % save session value 
-                    save_file_name = sprintf('%s_%s_%s_%s_%s_%s_PSI.mat', Animal, RecDate, 'OnlyPrior', 'correct', 'congruent', Frequency_Band);
+                    save_file_name = sprintf('%s_%s_%s_%s_%s_%s_PSI.mat', Animal, RecDate, 'OnlyPrior', 'correct', 'all-congruency', Frequency_Band);
                     save(fullfile(savedir, save_file_name), 'PSI_OnlyPrior');
-                    save_file_name = sprintf('%s_%s_%s_%s_%s_%s_PSI.mat', Animal, RecDate, 'OnlyPretone', 'correct', 'congruent', Frequency_Band);
+                    save_file_name = sprintf('%s_%s_%s_%s_%s_%s_PSI.mat', Animal, RecDate, 'OnlyPretone', 'correct', 'all-congruency', Frequency_Band);
                     save(fullfile(savedir, save_file_name), 'PSI_OnlyPretone')
              
-                    save_file_name = sprintf('%s_%s_%s_%s_%s_%s_Coh.mat', Animal, RecDate, 'OnlyPrior', 'correct', 'congruent', Frequency_Band);
-                    save(fullfile(savedir, save_file_name), 'Coh_OnlyPrior');
-                    save_file_name = sprintf('%s_%s_%s_%s_%s_%s_Coh.mat', Animal, RecDate, 'OnlyPretone', 'correct', 'congruent', Frequency_Band);
-                    save(fullfile(savedir, save_file_name), 'Coh_OnlyPretone');
+                    % save_file_name = sprintf('%s_%s_%s_%s_%s_%s_Coh.mat', Animal, RecDate, 'OnlyPrior', 'correct', 'congruent', Frequency_Band);
+                    % save(fullfile(savedir, save_file_name), 'Coh_OnlyPrior');
+                    % save_file_name = sprintf('%s_%s_%s_%s_%s_%s_Coh.mat', Animal, RecDate, 'OnlyPretone', 'correct', 'congruent', Frequency_Band);
+                    % save(fullfile(savedir, save_file_name), 'Coh_OnlyPretone');
 
                     clear_list = {'freq_OnlyPrior', 'freq_OnlyPretone', 'cfg','PSI_OnlyPrior', 'PSI_OnlyPretone', 'Coh_OnlyPrior', 'Coh_OnlyPretone'};
                     clear(clear_list{:});

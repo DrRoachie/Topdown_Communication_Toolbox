@@ -2,22 +2,20 @@ README
 
 01_Preprocessing 
 
-Updated: 08/11/25
+Updated: 09/09/25
 CR
 
-STRF_BestFrequency_Analysis: code provided by Lalitta to calculate STRF. As of this update, CR never modified anything about it. 
+AdjustSampleInfo.m: following time series truncation in the preprocessed data  files, this script adjusts the sampleinfo field. SampleInfo helps fieldtrip retain trial identity.
 
-AdjustSampleInfo.m: following time series truncation in the preprocessed data  files, this script adjusts the sampleinfo field. SampleInfo helps fieldtrip retain trial identity. CR is not sure what the field is used for exactly considering our trials should be considered independent and non-continuous. 
-
-ChoppingData_fulArray.m: truncates the time series, so that field trip only processes a selected epoch. Importantly this strategy reduces the minimum spectral resolution when converted to the frequency domain via fft. Automated by JK and SB, cross compatible with both the fullArray and bipolar version of the code. 
+ChoppingData_fulArray.m: This takes the data from the *Preprocessed_bipolar folder, and cuts out the time window that we care about. The reason that we do this is that fieldtrip has a hard time iteratively calling declared time windows across different functions. It is easiest to cut the data ahead of passing through fieldtrip function, and just fieldtrip read the entire data array. Importantly this strategy reduces the minimum spectral resolution when converted to the frequency domain via fft. Automated by JK and SB, cross compatible with both the fullArray and bipolar version of the code. 
 
 MoveOnset_Cut_v2: Cuts the moveOnset data files backwards from joystick onset to encapsulate the decision epoch. A modified version can be used to cut epoch using DDM timings. 
 
-PreprocessLFP_ft: 
+PreprocessLFP_ft: this is a wrapper or uber file developed by Taku that runs all preprocessing steps on selected sessions. This code takes Lalitta's cut epoch data, and runs 'FormatLFP_ft_v2.m'. That function "baseline corrects" (code: basecorrectLFP.m) to adjust for an offset in the time series inserted by the Synapse (TDT, acquisition software). The data is also referenced by passing the data through a spatial derivation (code: bipolarLFP.m). Finally, the data is reformatted for future use in field trip functions (code: downsample_bdLFP_ft.m) and downsampled to 1000 Hz.
 
-This is a wrapper or uber file developed by Taku that runs all preprocessing steps on selected sessions. This code takes Lalitta's cut epoch data, and runs 'FormatLFP_ft_v2.m'. That function "baseline corrects" (code: basecorrectLFP.m) to adjust for an offset in the time series inserted by the Synapse (TDT, acquisition software). The data is also referenced by passing the data through a spatial derivation (code: bipolarLFP.m). Finally, the data is reformatted for future use in field trip functions (code: downsample_bdLFP_ft.m) and downsampled to 1000 Hz.
+USAGE NOTES: In order to preprocess without bipolar re-referencing, comment out the call to bipolarLFP within downsample_bdLFP_ft.m. 
 
-***In order to preprocess without bipolar rereferencing, comment out the call to bipolarLFP within downsample_bdLFP_ft.m. 
+********************************************************************************************************************************
 
 Notes
 
@@ -81,12 +79,6 @@ Reducing spatial resolution: You now have fewer effective channels but cleaner s
 
 In practical terms, your 24-channel probe now behaves more like a 20-channel probe, but with better noise suppression and stronger localization of local dipoles. For phase-based analyses, this should help clarify true local phase interactions rather than global signal contamination.
 
-ChoppingData.m: This takes the data from the 02_ft_Preprocessed folder, and cuts out the time window that we care about. The reason that we do this is that fieldtrip has a hard time iteratively calling declared time windows across different functions. It is easiest to cut the data ahead of passing through fieldtrip function, and just fieldtrip read the entire data array. 
 
-AdjustSampleInfo.m: CR used this to change the SampleInfo field after data has been cut with the ChoppingData.m script. Could be consolidated into ChoppingData.m  in future releases 
-
-MoveOnset_Cut.m & MoveOnset_Cut_v2: SF made these two scripts to cut moveOnset data from the 02_ft_Preprocessed folder. The first version mostly adjusts the SampleInfo field after EPOC cutting. 
-
-[To-Do] All the files in this directory should be consolidated into a single function. 
 
  

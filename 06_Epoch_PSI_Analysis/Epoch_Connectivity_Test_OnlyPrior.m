@@ -41,7 +41,7 @@
 %% Set parameters for the preCue Condition
 
 Condition         = 'OnlyPrior';                                                  % Options: 'OnlyPrior' or 'OnlyPretone' or 'Both'
-Frequency_Band    = 'alpha';
+Frequency_Band    = 'theta';
 SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000];   % Options: any combination of  -11/6, -5/3, -1.5000, -1.2500, 0, 1.2500, 1.5000, 5/3, 11/6; 
 
 %% Calculate PSI Spectra during the preCueOnset epoch; PriorOnly Trials, Collapsed Across Behavior (Correct and Wrong) and SNR (High and Low)
@@ -91,9 +91,10 @@ SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000]; 
                         'MrM', '190722';
                         'MrCassius', '190723';
                         'MrCassius', '190725';};
-     end
+    end
 
 
+     
     if strcmp(Frequency_Band, 'beta')
 
         session_info = {'MrCassius', '190404';
@@ -121,9 +122,9 @@ SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000]; 
         RecDate          = session_info{rd,2};                  % Options: 'YYMMDD'; 
 
         % Set directory and get a list of all files in the folder with the desired file name pattern.
-        datadir = fullfile('D:\04_Epoc_Cut', Animal, 'preCue', RecDate);                                 % epoch data, with the time chunk that you want isolated
-        chandir = fullfile('D:\05_Significant_Channels_epoch', Animal, 'preCue', RecDate);     % the sig channels that are output LFP_Spectral_Analysis
-        savedir           = 'C:\Users\Corey Roach\Documents\00_DATA\PSI_Epoch_Analysis';  % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
+        datadir = fullfile('D:\04_Epoc_Cut_bipolar', Animal, 'preCue', RecDate);                                 % epoch data, with the time chunk that you want isolated
+        chandir = fullfile('D:\05_Significant_Channels_bipolar', Animal, 'preCue', RecDate);     % the sig channels that are output LFP_Spectral_Analysis
+        savedir           = 'C:\Users\Corey Roach\Documents\00_DATA\2025_09_09_PSI_Epoch_Analysis';  % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
 
         sessions = dir(fullfile(datadir,'*.mat')); % bad naming convention but only ever one session at a time
         addpath(genpath(datadir));
@@ -290,9 +291,9 @@ SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000]; 
              % sure that PSI is calculated using the same number of trials.
 
             % Set directory and get a list of all files in the folder with the desired file name pattern.
-            datadir = fullfile('D:\04_Epoc_Cut', Animal, 'testTone', RecDate);                             % epoch data, with the time chunk that you want isolated
-            chandir = fullfile('D:\05_Significant_Channels_epoch', Animal, 'testTone', RecDate);           % the sig channels that are output LFP_Spectral_Analysis
-            savedir           = 'C:\Users\Corey Roach\Documents\00_DATA\PSI_Epoch_Analysis';  % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
+            datadir = fullfile('D:\04_Epoc_Cut_bipolar', Animal, 'testTone', RecDate);                             % epoch data, with the time chunk that you want isolated
+            chandir = fullfile('D:\05_Significant_Channels_bipolar', Animal, 'testTone', RecDate);           % the sig channels that are output LFP_Spectral_Analysis
+            savedir           = 'C:\Users\Corey Roach\Documents\00_DATA\2025_09_09_PSI_Epoch_Analysis';  % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
 
             sessions = dir(fullfile(datadir,'*.mat')); % bad naming convention but only ever one session at a time
             addpath(genpath(datadir));
@@ -478,6 +479,7 @@ clearvars -except Condition Frequency_Band SNR
 
     end
 
+    
 
     if strcmp(Frequency_Band, 'beta')
 
@@ -506,9 +508,9 @@ clearvars -except Condition Frequency_Band SNR
         RecDate          = session_info{rd,2};                  % Options: 'YYMMDD'; 
 
         % Set directory and get a list of all files in the folder with the desired file name pattern.
-        datadir = fullfile('D:\04_Epoc_Cut', Animal, 'testTone', RecDate);                                 % epoch data, with the time chunk that you want isolated
-        chandir = fullfile('D:\05_Significant_Channels_epoch', Animal, 'testTone', RecDate);     % the sig channels that are output LFP_Spectral_Analysis
-        savedir = 'C:\Users\Corey Roach\Documents\00_DATA\PSI_Epoch_Analysis';  % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
+        datadir = fullfile('D:\04_Epoc_Cut_bipolar', Animal, 'testTone', RecDate);                                 % epoch data, with the time chunk that you want isolated
+        chandir = fullfile('D:\05_Significant_Channels_bipolar', Animal, 'testTone', RecDate);     % the sig channels that are output LFP_Spectral_Analysis
+        savedir = 'C:\Users\Corey Roach\Documents\00_DATA\2025_09_09_PSI_Epoch_Analysis';  % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
 
         sessions = dir(fullfile(datadir,'*.mat')); % bad naming convention but only ever one session at a time
         addpath(genpath(datadir));
@@ -593,9 +595,9 @@ clearvars -except Condition Frequency_Band SNR
         % Need the preCue data to ensure that the Epochs are the same
         % number of trials 
    
-        datadir = fullfile('D:\04_Epoc_Cut', Animal, 'preCue', RecDate);                                 % epoch data, with the time chunk that you want isolated
-        chandir = fullfile('D:\05_Significant_Channels_epoch', Animal, 'preCue', RecDate);     % the sig channels that are output LFP_Spectral_Analysis
-        savedir           = 'C:\Users\Corey Roach\Documents\00_DATA\PSI_Epoch_Analysis';  % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
+        datadir = fullfile('D:\04_Epoc_Cut_bipolar', Animal, 'preCue', RecDate);                                 % epoch data, with the time chunk that you want isolated
+        chandir = fullfile('D:\05_Significant_Channels_bipolar', Animal, 'preCue', RecDate);     % the sig channels that are output LFP_Spectral_Analysis
+        savedir           = 'C:\Users\Corey Roach\Documents\00_DATA\2025_09_09_PSI_Epoch_Analysis';  % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
 
         sessions = dir(fullfile(datadir,'*.mat')); % bad naming convention but only ever one session at a time
         addpath(genpath(datadir));
@@ -691,9 +693,9 @@ clearvars -except Condition Frequency_Band SNR
              % Load testToneOnset data 
 
             % Set directory and get a list of all files in the folder with the desired file name pattern.
-            datadir = fullfile('D:\04_Epoc_Cut', Animal, 'testTone', RecDate);                             % epoch data, with the time chunk that you want isolated
-            chandir = fullfile('D:\05_Significant_Channels_epoch', Animal, 'testTone', RecDate);           % the sig channels that are output LFP_Spectral_Analysis
-            savedir           = 'C:\Users\Corey Roach\Documents\00_DATA\PSI_Epoch_Analysis';  % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
+            datadir = fullfile('D:\04_Epoc_Cut_bipolar', Animal, 'testTone', RecDate);                             % epoch data, with the time chunk that you want isolated
+            chandir = fullfile('D:\05_Significant_Channels_bipolar', Animal, 'testTone', RecDate);           % the sig channels that are output LFP_Spectral_Analysis
+            savedir = 'C:\Users\Corey Roach\Documents\00_DATA\2025_09_09_PSI_Epoch_Analysis';  % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
 
             sessions = dir(fullfile(datadir,'*.mat')); % bad naming convention but only ever one session at a time
             addpath(genpath(datadir));

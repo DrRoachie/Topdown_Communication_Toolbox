@@ -3,17 +3,17 @@
 Condition         = 'OnlyPrior';                                                 % Options: 'OnlyPrior' or 'OnlyPretone' or 'Both'
 Frequency_Band    = 'theta';
 Behavior          = 'correct';
-Congruency        = [];
+Congruency        = 'congruent';
 SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000];  % Options: any combination of  -11/6, -5/3, -1.5000, -1.2500, 0, 1.2500, 1.5000, 5/3, 11/6; 
-animals           = {'MrCassius'};                                                   % Options: 'MrCassius' and/or 'MrM'
-rootdir           = 'C:\Users\Corey Roach\Documents\00_DATA\2025_09_24_PSI_Expectation_Analysis_All_Congruency';                                 
+animals           = {'MrCassius'};                                                     % Options: 'MrCassius' and/or 'MrM'
+rootdir           = 'C:\Users\auditory research la\OneDrive\Desktop\Sonia_Data\Expectation_Connectivity_Results_FullArray\theta';                                 
 sessions          = dir(fullfile(rootdir, '19*'));
 
 % Define the PFC and AC channel labels and generate temporary grids
 
-channels               = arrayfun(@(x) sprintf('ch%02d', x), 3:22, 'UniformOutput', false);
-OnlyPrior_PSI_grid     = cell(20, 20); 
-OnlyPretone_PSI_grid   = cell(20, 20);
+channels               = arrayfun(@(x) sprintf('ch%02d', x), 1:24, 'UniformOutput', false);
+OnlyPrior_PSI_grid   = cell(24, 24); 
+OnlyPretone_PSI_grid = cell(24, 24);
 
 %% Loop through all sessions and sort PSI values by channel-pair 
 
@@ -115,6 +115,9 @@ for i = 1:length(sessions)
      end
 end
 
+
+
+
 %% Average selected bands to output a single PSI value per channel pair (OnlyPrior)
 
 
@@ -123,11 +126,11 @@ if strcmp(Frequency_Band,'theta') == 1
 columnRange = 5:8;
 
 % Initialize a new grid to store the averaged values
-OnlyPrior_averagedGrid = nan(20, 20); % Use NaN to handle empty grid positions
+OnlyPrior_averagedGrid = nan(24, 24); % Use NaN to handle empty grid positions
 
 % Loop through each position in the grid
-for pfcIdx = 1:20
-    for acIdx = 1:20
+for pfcIdx = 1:24
+    for acIdx = 1:24
         % Check if the grid position contains data
         if ~isempty(OnlyPrior_PSI_grid{pfcIdx, acIdx})
             % Extract the data matrix for the current position
@@ -143,42 +146,18 @@ for pfcIdx = 1:20
 end
 end
 
-if strcmp(Frequency_Band,'alpha') == 1
 
-% Define the range of columns to average
-columnRange = 9:14;
-
-% Initialize a new grid to store the averaged values
-OnlyPrior_averagedGrid = nan(20, 20); % Use NaN to handle empty grid positions
-
-% Loop through each position in the grid
-for pfcIdx = 1:20
-    for acIdx = 1:20
-        % Check if the grid position contains data
-        if ~isempty(OnlyPrior_PSI_grid{pfcIdx, acIdx})
-            % Extract the data matrix for the current position
-            dataposition = OnlyPrior_PSI_grid{pfcIdx, acIdx};
-
-            % Compute the average of the selected columns
-            columnAverage = mean(dataposition(:, columnRange), 'all', 'omitnan');
-
-            % Store the average in the new grid
-            OnlyPrior_averagedGrid(pfcIdx, acIdx) = columnAverage;
-        end
-    end
-end
-end
 
 if strcmp(Frequency_Band,'beta') == 1
 % Define the range of columns to average
 columnRange = 15:30;
 
 % Initialize a new grid to store the averaged values
-OnlyPrior_averagedGrid = nan(20, 20); % Use NaN to handle empty grid positions
+OnlyPrior_averagedGrid = nan(24, 24); % Use NaN to handle empty grid positions
 
 % Loop through each position in the grid
-for pfcIdx = 1:20
-    for acIdx = 1:20
+for pfcIdx = 1:24
+    for acIdx = 1:24
         % Check if the grid position contains data
         if ~isempty(OnlyPrior_PSI_grid{pfcIdx, acIdx})
             % Extract the data matrix for the current position
@@ -202,36 +181,11 @@ if strcmp(Frequency_Band,'theta') == 1
 columnRange = 5:8;
 
 % Initialize a new grid to store the averaged values
-OnlyPretone_averagedGrid = nan(20, 20); % Use NaN to handle empty grid positions
+OnlyPretone_averagedGrid = nan(24, 24); % Use NaN to handle empty grid positions
 
 % Loop through each position in the grid
-for pfcIdx = 1:20
-    for acIdx = 1:20
-        % Check if the grid position contains data
-        if ~isempty(OnlyPretone_PSI_grid{pfcIdx, acIdx})
-            % Extract the data matrix for the current position
-            dataposition = OnlyPretone_PSI_grid{pfcIdx, acIdx};
-
-            % Compute the average of the selected columns
-            columnAverage = mean(dataposition(:, columnRange), 'all', 'omitnan');
-
-            % Store the average in the new grid
-            OnlyPretone_averagedGrid(pfcIdx, acIdx) = columnAverage;
-        end
-    end
-end
-end
-
-if strcmp(Frequency_Band,'alpha') == 1
-% Define the range of columns to average
-columnRange = 9:14;
-
-% Initialize a new grid to store the averaged values
-OnlyPretone_averagedGrid = nan(20, 20); % Use NaN to handle empty grid positions
-
-% Loop through each position in the grid
-for pfcIdx = 1:20
-    for acIdx = 1:20
+for pfcIdx = 1:24
+    for acIdx = 1:24
         % Check if the grid position contains data
         if ~isempty(OnlyPretone_PSI_grid{pfcIdx, acIdx})
             % Extract the data matrix for the current position
@@ -252,11 +206,11 @@ if strcmp(Frequency_Band,'beta') == 1
 columnRange = 15:30;
 
 % Initialize a new grid to store the averaged values
-OnlyPretone_averagedGrid = nan(20, 20); % Use NaN to handle empty grid positions
+OnlyPretone_averagedGrid = nan(24, 24); % Use NaN to handle empty grid positions
 
 % Loop through each position in the grid
-for pfcIdx = 1:20
-    for acIdx = 1:20
+for pfcIdx = 1:24
+    for acIdx = 1:24
         % Check if the grid position contains data
         if ~isempty(OnlyPretone_PSI_grid{pfcIdx, acIdx})
             % Extract the data matrix for the current position
@@ -280,11 +234,11 @@ end
 OnlyPrior_averagedGrid(isnan(OnlyPrior_averagedGrid)) = 0;
 OnlyPretone_averagedGrid(isnan(OnlyPretone_averagedGrid)) = 0;
 
-% Determine the global color range
-% globalMin = -0.1;
-% globalMax = 0.1;
-
-% Clamp values to the global color range
+% % % Determine the global color range
+% globalMin = 0.00;
+% globalMax = 0.025;
+% % 
+% % % Clamp values to the global color range
 % averagedGrid_1_clamped = max(globalMin, min(globalMax, OnlyPrior_averagedGrid));
 % averagedGrid_2_clamped = max(globalMin, min(globalMax, OnlyPretone_averagedGrid));
 
@@ -296,32 +250,31 @@ figure(1);
 subplot(1, 2, 1);
 imagesc(averagedGrid_1_clamped);
 colormap(jet(256)); % 256 instead of default 64
-%clim([globalMin, globalMax]);
-clim([-.08, .08]);
+%colormap(jet)
+clim([globalMin, globalMax]);
 colorbar;
 xlabel('AC Channels');
 ylabel('PFC Channels');
 title(['OnlyPrior-',  Frequency_Band, '-', Animal]);
 xticks(1:24);
 yticks(1:24);
-xticklabels(arrayfun(@(x) sprintf('ch%02d', x), 3:22, 'UniformOutput', false));
-yticklabels(arrayfun(@(x) sprintf('ch%02d', x), 3:22, 'UniformOutput', false));
+xticklabels(arrayfun(@(x) sprintf('ch%02d', x), 1:24, 'UniformOutput', false));
+yticklabels(arrayfun(@(x) sprintf('ch%02d', x), 1:24, 'UniformOutput', false));
 axis square;
 
 % Plot the second heatmap
 subplot(1, 2, 2);
 imagesc(averagedGrid_2_clamped);
 colormap(jet(256)); % 256 instead of default 64
-%clim([globalMin, globalMax]);
-clim([-.08, .08]);
+clim([globalMin, globalMax]);
 colorbar;
 xlabel('AC Channels');
 ylabel('PFC Channels');
 title(['OnlyPretone-',  Frequency_Band, '-', Animal]);
 xticks(1:24);
 yticks(1:24);
-xticklabels(arrayfun(@(x) sprintf('ch%02d', x), 3:22, 'UniformOutput', false));
-yticklabels(arrayfun(@(x) sprintf('ch%02d', x), 3:22, 'UniformOutput', false));
+xticklabels(arrayfun(@(x) sprintf('ch%02d', x), 1:24, 'UniformOutput', false));
+yticklabels(arrayfun(@(x) sprintf('ch%02d', x), 1:24, 'UniformOutput', false));
 axis square;
 
 % %% Statistics

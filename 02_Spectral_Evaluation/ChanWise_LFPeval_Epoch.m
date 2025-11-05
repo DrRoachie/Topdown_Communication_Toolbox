@@ -1,14 +1,4 @@
 
-%% Epoch_Connectivity_Test
-
-% This code tests how connectivity between PFC and AC changes as a function
-% of epoch (LED illumination versus testTone presentation). For each
-% session, PSI during preCueOnset and testTone onset is calculated. Then
-% the session-wise PSI values are visualized and statistically compared.
-% Though code for OnlyPretone Trials (neural LED followed by pretones) is
-% present, we chose to do this analysis on OnlyPrior trials (informatative
-% LED followed by silence). 
- 
 
 %% Set parameters for the preCue Condition
 
@@ -111,9 +101,9 @@ Channelwise_testTone_LFPpower_AC    = cell(20, 1);
         % Get PreCue Significant Channels from Phase Shuffle
 
         % Set directory and get a list of all files in the folder with the desired file name pattern.
-        datadir = fullfile('D:\04_Epoc_Cut', Animal, 'preCue', RecDate);                                 % epoch data, with the time chunk that you want isolated
-        chandir = fullfile('D:\05_Significant_Channels_epoch', Animal, 'preCue', RecDate);     % the sig channels that are output LFP_Spectral_Analysis
-        savedir        = 'C:\Users\Corey Roach\Documents\00_DATA\LFP_Epoch_Analysis';  % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
+        datadir = fullfile('\\Kilosort\d\Top_Down_Coherence_Project\00_DATA\04_Epoc_Cut_bipolar', Animal, 'testTone', RecDate);                                 % epoch data, with the time chunk that you want isolated
+        chandir = fullfile('\\Kilosort\d\Top_Down_Coherence_Project\00_DATA\05_Significant_Channels_bipolar', Animal, 'testTone', RecDate);     % the sig channels that are output LFP_Spectral_Analysis
+        savedir        = 'C:\Users\Corey Roach\Desktop\Corey_Junk_Pile';  % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
 
         sessions = dir(fullfile(datadir,'*.mat')); % bad naming convention but only ever one session at a time
         addpath(genpath(datadir));
