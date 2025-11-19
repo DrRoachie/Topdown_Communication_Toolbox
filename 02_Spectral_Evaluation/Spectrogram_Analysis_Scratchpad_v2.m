@@ -115,9 +115,9 @@ Session_OnlyPretone_Effect_All_meanAll  = nan(nSessions,1);
         
      
         % Set directory and get a list of all files in the folder with the desired file name pattern.
-        datadir           = fullfile('\\Kilosort\d\Top_Down_Coherence_Project\00_DATA\02_Preprocessed_bipolar', Animal, 'testToneOnset', RecDate);             % epoch data, with the time chunk that you want isolated
-        chandir           = fullfile('\\Kilosort\d\Top_Down_Coherence_Project\00_DATA\05_Significant_Channels_bipolar', Animal, 'testTone', RecDate);    % the sig channels that are output LFP_Spectral_Analysis
-        savedir           = 'C:\Users\Corey Roach\Desktop\Corey_Junk_Pile';                                                           % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
+        datadir           = fullfile('\\Kilosort\u\Top_Down_Coherence_Project\00_DATA\02_Preprocessed_bipolar', Animal, 'testToneOnset', RecDate);             % epoch data, with the time chunk that you want isolated
+        chandir           = fullfile('\\Kilosort\u\Top_Down_Coherence_Project\00_DATA\05_Significant_Channels_bipolar', Animal, 'testTone', RecDate);    % the sig channels that are output LFP_Spectral_Analysis
+        savedir           = 'C:\Users\Corey Roach\Desktop\Figure_Spectral_Evaluation';                                                           % Path to the parent directory where all new data will be stored (save structure: RecDate >> Animal >> Epoch >> all figures/files)
         
         
         sessions = dir(fullfile(datadir,'*.mat')); % bad naming convention; only ever one session at a time
@@ -758,11 +758,11 @@ for s = 1:size(data_counts,2)
     x = b1(s).XEndPoints;
     errorbar(x, data_counts(:,s), err_counts(:,s), 'k', 'linestyle','none', 'LineWidth',1);
 end
-set(gca,'XTickLabel',{'AC','PFC'});
+set(gca,'XTickLabel',{'AC','vlPFC'});
 ylabel('Evoked channels / session');
 title('Counts (mean \pm SD)');
-legend({'Informative prior (OnlyPrior)','Non-informative prior (OnlyPretone)'}, 'Location','northeastoutside');
-grid on; box off;
+legend({'Informative Priors','Stimulus-Based Cues'}, 'Location','northeastoutside');
+grid off; box off;
 
 % ================= RIGHT: MAGNITUDE — grouped boxplot (no diamonds) =================
 nexttile(2);
@@ -780,7 +780,7 @@ boxplot(yM, {areaM,condM}, 'FactorSeparator',1, ...
 
 ylabel('Evoked magnitude (a.u.)');
 title('Magnitude (post - pre)');
-grid on; box off;
+grid off; box off;
 
 % Thicken boxplot lines for readability
 set(findobj(gca,'Tag','Box'),     'LineWidth',1.4);
@@ -791,7 +791,7 @@ set(findobj(gca,'Tag','Whisker'), 'LineWidth',1.2);
 hold on;
 hInf = plot(nan,nan,'-','Color',c_prior,'LineWidth',2);
 hNon = plot(nan,nan,'-','Color',c_pret, 'LineWidth',2);
-legend([hInf hNon], {'Informative prior','Non-informative prior'}, 'Location','northeastoutside');
+legend([hInf hNon], {'Informative Priors','Stimulus-Based Cues'}, 'Location','northeastoutside');
 
 % Optional: if magnitude spans a huge range, try log scale
 % set(gca,'YScale','log');

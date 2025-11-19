@@ -11,6 +11,9 @@ ChanWise_LFPeval_Epoch.m; ChanWise_LFPeval_Expectation: This code compares the L
 
 Spectrogram_Analysis_ScratchPad_v2: Moves across all shared significant channel pairs between two conditions, and calculates the mean evoked response. 
 
+Spectrogram_Analysis_ScratchPad_v3: Averages across all levels to get a single times series per condition, also plots the spectrograms for each channel collapsed across sessions, does some stats. 
+
+Spectrogram_Analysis_ScratchPad_v4: Updated to collapse separate responses by high and low. 
 
 
 

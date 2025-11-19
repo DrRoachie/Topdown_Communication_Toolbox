@@ -8,14 +8,14 @@
 
 %% Step 1: Book-Keeping 
 
-Condition         = 'OnlyPrior';                                                                                             % Options: 'OnlyPrior' or 'OnlyPretone' or 'Both'
+Condition         = 'OnlyPretone';                                                                                             % Options: 'OnlyPrior' or 'OnlyPretone' or 'Both'
 Frequency_Band    = 'theta';
 SNR               = [-11/6, -5/3, 5/3, 11/6, -1.5000, -1.2500, 1.2500, 1.5000];                                              % Options: any combination of  -11/6, -5/3, -1.5000, -1.2500, 0, 1.2500, 1.5000, 5/3, 11/6; 
-animals           = {'MrCassius'};                                                                                           % Options: 'MrCassius' and/or 'MrM'
-rootdir           = 'C:\Users\Corey Roach\Documents\00_DATA\2025_09_09_PSI_Epoch_Analysis_OnlyPrior_All_Congruency';                                    
+animals           = {'MrM'};                                                                                           % Options: 'MrCassius' and/or 'MrM'
+rootdir           = 'C:\Users\Corey Roach\Documents\00_DATA\2025_09_12_PSI_Epoch_Analysis_OnlyPretone_All_Congruency';                                    
 sessions          = dir(fullfile(rootdir, '19*'));
-savedir           = 'C:\Users\Corey Roach\Desktop\Figure_PSI_Epoch_Analysis_OnlyPrior';                                          % Options: Where you want to save your figures
-savefig           = 'no';                                                                                                   % Options: 'yes' or 'no'
+savedir           = 'C:\Users\Corey Roach\Desktop\Figure_9_Epoch_PSI_Analysis_OnlyPretone_theta';                                          % Options: Where you want to save your figures
+savefig           = 'yes';                                                                                                   % Options: 'yes' or 'no'
 
 %% Step 2: Loop through all sessions and sort PSI values by channel-pair 
 
@@ -468,3 +468,8 @@ Res_Epoch = struct('Animal', Animal, 'Band', Frequency_Band, 'Condition', Condit
     'MeanCI_tbl', MeanCI_tbl);
 
 assignin('base', ['Res_Epoch_' Animal], Res_Epoch);
+
+
+
+
+
